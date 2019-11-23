@@ -103,5 +103,13 @@ venv.bak/
 # mypy
 .mypy_cache/
 
+*.DS_Store
+
 # Latex
 *.synctex.gz
+textmining_julki092-blx.bib
+*.aux
+*.bbl
+*.blg
+*.run.xml
+*.toc
