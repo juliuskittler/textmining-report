@@ -1,5 +1,6 @@
 \documentclass{article}
 \usepackage[utf8]{inputenc}
+\usepackage{graphicx}
 \usepackage[margin=1in]{geometry}
 \usepackage[backend=bibtex,style=ieee]{biblatex}
 \addbibresource{textmining_julki092.bib}
@@ -24,12 +25,16 @@
 	\newpage
 	
 	\begin{abstract}
+		
 		For over a century, fingerprints have been an undisputed
 		personal identifier.  Recent court rulings have sparked
 		interest in verifying unique
 	\end{abstract}
 
+	\newpage
 	\tableofcontents
+	\newpage
+	\listoffigures
 	\newpage
 
 	\section{Introduction}
@@ -55,6 +60,15 @@
 	Because 8-K filing correspond to major events for the company and because they need to be published shortly after an event occurred, 8-K filings seem interesting for predicting short-term volatility in the stock market. Moreover, the important information in 8-K filings is generally represented in form of text data, whereas other filings such as the annual report often focus on numerical data represented in tabular form.
 	
 	\textbf{TODO: EXAMPLE}
+
+	\begin{figure}[h]
+		\includegraphics[width=\linewidth]{img/test.png}
+		\caption{A boat.}
+		\label{fig:boat1}
+	\end{figure}
+	
+	Figure \ref{fig:boat1} shows a boat.
+	
 	
 	\subsection{Research Questions}
 	
