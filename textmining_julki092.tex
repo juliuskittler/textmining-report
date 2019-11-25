@@ -34,11 +34,14 @@
 
 	\section{Introduction}
 	
-	tbd
+	Forecasting stock prices has been a relevant problem since the existence of publicly traded companies. Today, it is a more relevant problem than ever before because we have the technological infrastructure to build automatic trading systems and thereby put our forecasts to practice. We can not only obtain massive amounts of data relevant for forecasts via APIs but also execute trades via APIs. With commission free trading having become the industry standard in the U.S., the latter services are even offered for free, for instance by the commission free algorithmic trading API Alpaca \cite{noauthor_alpaca_nodate}. 
+	
+	This text mining project aims to explore whether filings of the U.S. Securities and Exchange Commission (SEC) can be used to classify if the price of a stock will decrease, remain unchanged or increase. The results will be evaluated critically from the perspective of a trader, with the question in mind whether the classifications could actually be put to practice in an automatic trading system.
+	
 
 	\subsection{SEC Filings}
 	
-	The U.S. Securities and Exchange Commission (SEC) is a government agency in the United States with the mission to "protect investors, maintain fair, orderly, and efficient markets, and facilitate capital formation" \cite{noauthor_sec.gov_nodate}. An important task of the SEC is to ensure that publicly traded companies inform their shareholders and the public about their business.
+	The SEC is a government agency in the United States with the mission to "protect investors, maintain fair, orderly, and efficient markets, and facilitate capital formation" \cite{noauthor_sec.gov_nodate}. An important task of the SEC is to ensure that publicly traded companies inform their shareholders and the public about their business.
 	
 	For instance, the SEC requires companies to publish their quarterly and annual results, and inform shareholders about certain relevant events. For each of these purposes, companies have to file specific documents. For instance, the annual report corresponds to the 10-K, the quarterly report corresponds to the 10-Q and another report for specific relevant events corresponds to the 8-K filing.
 	
@@ -54,16 +57,14 @@
 	\textbf{TODO: EXAMPLE}
 	
 	\subsection{Research Questions}
-	tbd
+	
+	There are mainly three research questions that this report aims to address. The focus is not only on the stock price classification itself but importantly also on understanding how the model works. Assuming that we do not know much about SEC filings, we would like the model to give insights about how it is using the text data of the SEC filings for the classification and in which cases the model is more or less reliable. 
 	
 	\begin{enumerate}
-		\item Can we successfully forecast stock prices based on 8-K filings?
+		\item Can we successfully forecast stock prices based on 8-K filings? If so, how well?
 		\item Which text features are most important when forecasting stock prices based on 8-K filings?
+		\item In which scenario do the forecasts perform best (e.g. type of the 8-K filing, industry of the company, other metrics of the company)?
 	\end{enumerate}
-	
-	
-	\subsection{Relevance}
-	tbd
 	
 
 	\section{Theory}
