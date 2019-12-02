@@ -5,8 +5,12 @@
 \usepackage{booktabs}
 \usepackage{hyperref}
 \usepackage{listings}
+\usepackage{amsmath}
+\usepackage{mathtools}
 \usepackage[margin=0.85in]{geometry}
 \usepackage[backend=bibtex,style=ieee]{biblatex}
+\usepackage{newunicodechar}
+\newunicodechar{ﬁ}{fi}
 \addbibresource{textmining_julki092.bib}
 \newcommand{\HRule}[1]{\rule{\linewidth}{#1}}
 
@@ -14,7 +18,7 @@
 	
 	\title{\textsc{732A92 Text Mining} \\ [2.0cm]
 		\HRule{0.5pt} \\
-		\LARGE \textbf{\uppercase{Classifying Stock Price Movements based on 8-K SEC filings}}
+		\LARGE \textbf{\uppercase{Classifying Stock Price Movements based on 8-K SEC filings: A comparison of Recurrent Neural Networks and Gradient Boosting Decision Trees}}
 		\HRule{2pt} \\ [0.5cm]
 		\normalsize \today \vspace*{5\baselineskip}}
 	
@@ -30,9 +34,8 @@
 	
 	\begin{abstract}
 		
-		For over a century, fingerprints have been an undisputed
-		personal identifier.  Recent court rulings have sparked
-		interest in verifying unique
+	This text mining project makes use of filings from the U.S. Securities and Exchange Commission (SEC), in particular 8-K filings, to forecast short-term percentage changes in stock prices. 8-K filings have to be published by public companies in the U.S. for certain defined, business-relevant events. The forecasting problem is approached as a classification problem with five classes: large decrease, small decrease, no change, small increase and large increase (of the stock price before and after filing date of the 8-K filing). Instead of using existing data sets, a new data set for the first quarter of 2019 is created. Furthermore, this project makes a contribution by comparing the previously successful methods for this problem: recurrent neural networks (RNNs) with word embeddings (GloVe) and gradient boosting decision trees (GBDT) with bag-of-words. 
+	
 	\end{abstract}
 
 	\newpage
@@ -44,10 +47,7 @@
 
 	\section{Introduction}
 	
-	Forecasting stock prices has been a relevant problem since the existence of publicly traded companies. Today, it is a more relevant problem than ever before because we have the technological infrastructure to build automatic trading systems and thereby put our forecasts to practice. We can not only obtain massive amounts of data relevant for forecasts via APIs but also execute trades via APIs. With commission free trading having become the industry standard in the U.S., the latter services are even offered for free, for instance by the commission free algorithmic trading API Alpaca \cite{noauthor_alpaca_nodate}. 
-	
-	This text mining project aims to explore whether filings of the U.S. Securities and Exchange Commission (SEC) can be used to classify if the price of a stock will decrease, remain unchanged or increase. The results will be evaluated critically from the perspective of a trader, with the question in mind whether the classifications could actually be put to practice in an automatic trading system.
-	
+	Forecasting stock prices has been a relevant problem since the existence of publicly traded companies. Today, it is an even more relevant problem than ever before because we have the technological infrastructure to put our forecasts to practice in form of automatic trading systems. Not only can we obtain massive amounts of financial data via APIs, but we can also execute trades via APIs. With commission free trading becoming the industry standard in the U.S., executing trades via APIs is even offered for free by some companies nowadays \cite{noauthor_alpaca_nodate}. 
 
 	\subsection{SEC Filings}
 	
@@ -112,57 +112,64 @@
 
 	\end{table}%	
 
+	\subsection{Stock Price Forecasting with 8-K filings}
+	
+	This section gives a short overview of previous work about forecasting stock prices with 8K filings. Since the focus of this project is classification, this literature review also focuses on previous work with classification. There are few public research papers that made use of 8-K filings for stock price forecasts. However, the papers that are publicly available show promising results. 
+	
+	For instance, Lee et al. could achieve an increase in accuracy by 10 percent when including text data from 8-K filings into a baseline model that only used financial metrics \cite{lee_importance_2014}. This study was solving a classification task with three classes: price increase ($> 1\%$), price decrease ($< -1\%$) or no relevant change ($< |1 \%|$). Compared to a random classification with 33 percent accuracy, the best model of the study could achieve a 55 percent accuracy on the test data. The main model used for this study was a random forest classifier because it outperformed other models such as multi layer perceptron and logistic regression. Unigram features of the text data were used along with non-negative matrix factorization for dimensionality reduction.
+	
+	Another study by Saleh et al. extended the research by Lee et al. \cite{saleh_neural_nodate}. In addition to the data from the 8-K filings, the researchers used text data from Twitter. Furthermore, they used convolutional neural networks (CNNs) and recurrent neural networks (RNNs) instead of random forests. Again, with three possible classes, a random classification would have given a 33 percent accuracy. The best test accuracies were 51 percent without and 52.6 percent with the Twitter data. Instead of unigram features, word embeddings from GloVe were used.
+	
+	Holowczak et al. compared the performance of various common algorithms (random forest, naive bayes, support vector machine, k-nearest neighbor and ridge classifier) on a binay classification task (price increase vs. decrease) \cite{holowczak_testing_2019}. However, only 8-K filings for a particular event, item 4.01, were used. The best results were achieved with a linear support vector classifier with a classification accuracy of 54.4 percent on the test data. The text data had been transformed with frequency-inverse document frequency (tf-id) vectorization.
+	
+	Sakarwala et al. also conducted a binary classification  (price increase vs. decrease) \cite{sakarwala_use_2019}. The best result with an accuracy of 68 percent was obtained with CNNs and RNNs. Again, word embeddings from GloVe were used.
+
+
+	%Other research papers investigate different aspects of 8-K filings instead of using them for stock price forecasts. For instance, there is research for predicting content in 8-K filings based on their text \cite{lee_predicting_2008} and for understanding the relation of 8-K filings and analysts' information \cite{gleason_selective_nodate}.%
+	
+	%Decision support from financial disclosures with deep neural networks and transfer learning --> exclude because they did not do classification.%
+	
+	%Predicting Stock Returns by Automatically Analyzing Company News Announcements --> exclude because of only few items and seemingly focus on topic modeling rather than classification%
+	
+	%https://medium.com/@babbemark/bert-is-the-word-predicting-stock-prices-with-language-models-8d5205b8537c --> exclude because unprofessional%
+	
+	
+	%subsection{Stock Price Forecasting with Text Data}%
+	%Content of Annual Reports as a Predictor for Long Term Stock Price Movements%
+	
+	%\subsection{Stock Price Forecasting in General}%
+	%Stock Market Analysis: A Review and Taxonomy of Prediction Techniques%
+
 
 	\subsection{Research Questions}
 	
-	There are mainly three research questions that this report aims to address. The focus is not only on the stock price classification itself but importantly also on understanding how the model works. Assuming that we do not know much about SEC filings, we would like the model to give insights about how it is using the text data of the SEC filings for the classification and in which cases the model is more or less reliable. 
+	There are mainly three research questions that this report aims to address. The focus is not only on the stock price classification itself but importantly also on understanding how the model works and on evaluating whether the best model could be used in practice.
 	
 	\begin{enumerate}
-		\item Can we successfully forecast stock prices based on 8-K filings? If so, how well?
-		\item Which text features are most important when forecasting stock prices based on 8-K filings?
-		\item In which scenario do the forecasts perform best (e.g. type of the 8-K filing, industry of the company, other metrics of the company)?
-	\end{enumerate}
+		\item Research question: Does a RNN with LSTM or the GBDT Catboost perform better at classifying stock price movements based on text data from 8-K filings?
+		\item Research question: How can the best model be interpreted: In which scenario does it perform better or worse (event of the 8-K filing, industry and location the company)? What are the most important features? 
+		\item Research question: Could the best model be profitable when used in an automatic trading strategy?
 	
+	\end{enumerate}
 
 	\section{Theory}
 	
-	This section gives a short overview of previous work about forecasting stock prices with 8K filings, with other text data and with any type of data. Considering previous work will help to put the results of this research project into perspective in the discussion section.
+	\subsection{Na\"ive Bayes}
 	
-	\subsection{Stock Price Forecasting with 8-K filings}
+	tbd
 	
-	There are few public research papers that made use of 8-K filings for stock price forecasts. However, the papers that are publicly available show promising results. For instance, Lee et al. could achieve an increase in accuracy by 10 percent when including text data from 8-K filings into a baseline model that only used financial metrics \cite{lee_importance_2014}. This study was also solving a classification task: predicting if a price will increase, decrease or stay almost the same. Since there were three possible classes, a random classification would have given a 33 percent accuracy. However, the best model of the study could achieve a 55 percent accuracy (on the test data). The main model used for this study was a random forest classifier because it outperformed other models such as multi layer perceptron and logistic regression.
+	\subsection{Gradient Boosting Decision Tree (GBDT)}
 	
-	Another study by Saleh et al. extended the research by Lee et al. \cite{saleh_neural_nodate}. In addition to the data from the 8-K filings, the researchers used text data from Twitter. Furthermore, they used CNNs and LSTMs instead of random forests. Again, with three possible classes, a random classification would have given a 33 percent accuracy. The best test accuracies were 51 percent without and 52.6 percent the Twitter data.
-	
-	%Other research papers investigate different aspects of 8-K filings instead of using them for stock price forecasts. For instance, there is research for predicting content in 8-K filings based on their text \cite{lee_predicting_2008} and for understanding the relation of 8-K filings and analysts' information \cite{gleason_selective_nodate}.%
+	Gradient boosting with decision trees became popular with the development of XGBoost in 2016 \cite{chen_xgboost:_2016} and lightGBmM in 2017 \cite{ke_lightgbm:_2017}. In 2018, another GBDT library called Catboost was published, which claims to handle categorical features particularly well. Furthermore, Catboost was shown to outperform XGBoost and lightGBM on various datasets with default parameters. For these reasons, Catboost is used in this project. The implementational details of Catboost are rather involved and are therefore not fully covered in this report. Instead, what follows is a short description of how GBDT work in general and how Catboost is different from other GBDT implementations.
 	
 	
-	Add: 
+	\subsection{Long Short-Term Memory (LSTM)}
 	
-	- Testing market response to auditor change filings: A comparison of machine learning classifiers
-	- Predicting Stock Returns by Automatically Analyzing Company News Announcements
-	- Decision support from financial disclosures with deep neural networks and transfer learning 
-	- Use Advances in Data Science and Computing Power to Invest in Stock Market
-	-  https://medium.com/@babbemark/bert-is-the-word-predicting-stock-prices-with-language-models-8d5205b8537c
+	tbs
 	
-	
-	\subsection{Stock Price Forecasting with Text Data}
-	
-	Add: 
-	
-	- Content of Annual Reports as a Predictor for Long Term Stock Price Movements
-	
-	\subsection{Stock Price Forecasting in General}
-	
-	Add
-	
-	- Stock Market Analysis: A Review and Taxonomy of Prediction Techniques
-
-
 	\section{Data}
 	
 	\subsection{Sources}
-	
 	
 	The data used for this text mining project comes from a variety of sources. The stock price data (with daily resolution) was retrieved with the financial API \href{https://www.tiingo.com}{Tiingo}. The SEC filings were downloaded from \href{https://www.sec.gov/Archives/edgar/full-index/}{EDGAR}, the official archive for SEC filings. The overview of companies by CIK, necessary to merge the SEC filings with the stock prices, was taken from the service \href{http://rankandfiled.com/#/data/tickers}{Ranked and Filed}. The industry categorization (SIC domain) for the companies was taken from \href{https://siccode.com}{SICCODE}. Lastly, the overview of the 8-K events, used to extract the 8-K events from each filing, was taken from the  \href{https://www.sec.gov/fast-answers/answersform8khtm.html}{SEC documentation}. 
 	
@@ -200,22 +207,76 @@
 	
 	\subsubsection{Target Variable}
 	
+	The target variable is computed for each 8-K filing as follows. Let the company corresponding to the 8-K filing be company C.
+	
+	The percentage change from the closing stock price of the day before the filing date and the open price of the day after the filing date is computed.
+	
 	\subsubsection{Feature Variables}
 	
 
 	\section{Method}
 	
-	\subsection{Evaluation Metric}
+	\subsection{Loss Function}
 	
-	\subsection{Baseline Models}
+	For multi-class classification problems, the softmax function is generally used as loss function (in neural networks and in gradient boosting trees). Hence, it is also used for this project. However, the loss function differs slightly between the two models.
 	
-	\subsection{Advanced Models}
+	\subsubsection{GBDT}
+	
+	The loss function used for Catboost is called \lstinline{MultiClass} loss function and is essentially a weighted softmax function \cite{noauthor_multiclassification:_nodate}. It is computed as a scalar value across all observations and classes. The definition is as follows:
+	
+	\begin{align}
+	L = \frac{\sum_{i = 1}^N w_i \log \left(\frac{\exp a_{i, t_i}}{\sum_{j = 0}^{M-1} \exp a_{i, j}}\right)}{\sum_{i = 1}^N w_i}, 
+	\end{align}
+	
+	where $i = 1, ..., N$ is the index for the observation, $j = 0, ..., M-1$ is the index of the class, $a_{i, j}$ is the model output for observation $i$ and class $j$, $w_i$ is the weight assigned for observation $i$ during training, and $t_i$ is the index of the true class of observation $i$ so that $a_{i, t_i}$ is the model output for the true class of observation $i$.
+	
+	Essentially, the term in the parentheses is the softmax function, which returns a value between 0 and 1 for each observation $i$ to belong to its true class $t_i$. If the model performs well for observation $i$, then the softmax value will be large. For instance, if the value is 1, this means that according to the model, we have a probability of 1 that observation $i$ is from class $t_i$, i.e. from the true class of the observation. In other words, the model would perfectly identify the true class of observation $i$. Since the log is taken, and since $log(1)=0$, the loss incurred for this perfectly classified observation will be 0. If the softmax value is smaller than 1, the loss for an observation will be negative and will hence affect the training process.
+		
+	\subsubsection{LSTM}
+	
+	The loss function used for the LSTM is similar to the loss function from Catboost. However, the observations $i$ are not weighted by any particular weights $w_i$. Essentially, a softmax function is used in the output layer so that the model directly outputs probabilities for each observation $i$ to belong to class $j$. Then, the loss function \lstinline{CategoricalCrossentropy} is used in \lstinline{TensorFlow} \cite{noauthor_module:_nodate}. For a multi-class problem, the categorical cross-entropy is defined as follows:
+	
+	\begin{align}
+	L = \frac{\sum_{i = 1}^N \log \left(\frac{\exp a_{i, t_i}}{\sum_{j = 0}^{M-1} \exp a_{i, j}}\right)}{N}, 
+	\end{align}
+	
+	where the notation is the same as in the loss function for GBDT. Note that in other notations this loss function usually has another sum over the classes along with an indicator function that is multiplied with the log (implying whether observation $i$ is from class $j$). However, here $a_{i, t_i}$ is defined as the model output for the true class of observation $i$ and hence the indicator function is not needed.
+	
+
+	% https://deepnotes.io/softmax-crossentropy
+	
+
+%	$$P(y = c | \textbf{x}) = \frac{\exp{z_c}}{\sum_{k = 1}^K \exp{z_k}}$$
+	
+	 %$\textbf{x}$ is a feature vector for one observation, $c$ is its corresponding class index, $K$ is the total number of classes, and $z_c$ is a real number given as output by the model. For instance, with a linear model, we might have $z_c = \textbf{x}^T\textbf{w}_c + b_c$. Basically, the model output $z_c$ is normalized by the softmax function to get a value in the interval from 0 to 1. This value is then interpreted as probability that observation $\textbf{x}$ corresponds to class $c$. A classification for observation $\textbf{x}$ can be obtained by taking $\underset{c}{\mathrm{argmax}} \ P(y = c | \textbf{x})$.
+	
+	\subsection{Training, Testing, Validation}
 	
 	\subsection{Hyperparameter Tuning}
 	
-	Train vs. test
+	\subsection{Evaluation}
 	
-	\subsection{Feature Relevance}
+	\subsubsection{Research Question 1: Metrics}
+	
+	For evaluating the results, confusion matrix, accuracy and class-wise precision are reported. The precision is particularly important for considering potential potential trading strategies based on the model.
+	
+	Class-wise precision is computed for each class individually. For a given class c, the class-wise precision is defined as the number of observations of class c that were classified as class c (TP for true positive), divided by the number of any observations that were classified as class c, regardless of whether they are of class c or not (TP + FP for the sum of all true positives and false positives).
+	
+	\begin{align}
+	\mathrm{precision}_c = \frac{TP_c}{FP_c + TP_c}
+	\end{align}
+	
+	Precision is chosen as prioritized evaluation metric in order to reflect the assumptions that we want to avoid loosing money in a trade and that missing out on a good trade is acceptable. To explain this, it is best to consider an example. Assume that we take a long position whenever the model classifies a large stock price increase (\verb|lg_inc|), i.e. we buy stocks expecting that their stock price will increase. If the stock price decreases instead, we would loose money. To avoid this loss, we ideally want that among all cases where the model classifies a large increase (FP + TP), the stock price actually increases (TP). This means that we care about the precision. 
+	
+	In addition to reporting the evaluation metrics numerically, they are also visualized by certain categorical variables (e.g. industry of the company, event of the 8-K filings, location of the company) in order to identify issues as well as future potentials of the models. 
+	
+	\subsubsection{Research Question 2: Model Interpretation}
+	
+	tbd
+	
+	\subsubsection{Research Question 3: Backtesting}
+	
+	tbd
 	
 	\section{Results}
 	
