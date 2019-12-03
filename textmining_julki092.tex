@@ -194,15 +194,7 @@
 	\subsection{Descriptive Statistics}
 	
 	
-	\begin{figure}[h]
-		\includegraphics[width=\linewidth]{img/test.png}
-		\caption{A boat.}
-		\label{fig:boat1}
-	\end{figure}
-	
-	Figure \ref{fig:boat1} shows a boat.
-	
-	
+
 	\subsubsection{General}
 	
 	\subsubsection{Target Variable}
@@ -210,6 +202,42 @@
 	The target variable is computed for each 8-K filing as follows. Let the company corresponding to the 8-K filing be company C.
 	
 	The percentage change from the closing stock price of the day before the filing date and the open price of the day after the filing date is computed.
+	
+	An overview of the discretized target variable can be found in 	table ~\ref{table:desc_target_disc}. Also, figures are in 	Figure \ref{fig:dist_target_disc} shows a boat.
+	
+	\begin{figure}[h!]
+		\includegraphics[width=\linewidth]{img/dist_target_nondisc.png}
+		\caption{Distribution of the target variable before discretization}
+		\label{fig:dist_target_nondisc}
+	\end{figure}
+
+	\begin{figure}[h!]
+		\includegraphics[width=\linewidth]{img/dist_target_disc.png}
+		\caption{Distribution of the target variable after discretization}
+		\label{fig:dist_target_disc}
+	\end{figure}
+	
+	
+	\begin{table}[h!]
+	\centering
+	\caption{Descriptive statistics for the target variable after discretization}
+	\label{table:desc_target_disc}
+		\begin{tabular}{lrrrrrr}
+			\toprule
+			{}Target &     min &     max &  size &    mean &  median &     std \\
+			\midrule
+			lg\_dec & -0.6387 & -0.0226 &  1597 & -0.0692 & -0.0465 &  0.0696 \\
+			sm\_dec & -0.0226 & -0.0053 &  1600 & -0.0124 & -0.0118 &  0.0049 \\
+			same   & -0.0052 &  0.0049 &  1591 & -0.0001 & -0.0001 &  0.0029 \\
+			sm\_inc &  0.0050 &  0.0226 &  1592 &  0.0123 &  0.0116 &  0.0049 \\
+			lg\_inc &  0.0226 &  4.9105 &  1595 &  0.0761 &  0.0491 &  0.1509 \\
+			\bottomrule
+		\end{tabular}
+
+	\end{table}%		
+
+	
+	
 	
 	\subsubsection{Feature Variables}
 	
@@ -279,29 +307,6 @@
 	tbd
 	
 	\section{Results}
-	
-	Table ~\ref{table:prosConsOptionalApproaches} summarizes
-	the benefits and drawbacks (``Pros and Cons'') of each 
-	approach.
-	
-	\begin{table}[h]
-	\centering
-	\caption{The pros and cons of Scala's optional classes}
-	\label{table:prosConsOptionalApproaches}
-	
-	\begin{tabular}{llrrrrr}
-		\toprule
-		&        & \multicolumn{5}{l}{Predicted} \\
-		&        &    lg\_dec & sm\_dec & zero & sm\_inc & lg\_inc \\
-		\midrule
-		True & lg\_dec &       107 &     46 &   53 &     32 &     78 \\
-		& sm\_dec &        39 &     56 &  117 &     49 &     48 \\
-		& zero &        34 &     54 &  146 &     46 &     33 \\
-		& sm\_inc &        55 &     59 &  102 &     65 &     43 \\
-		& lg\_inc &        82 &     42 &   41 &     40 &    128 \\
-		\bottomrule
-	\end{tabular}
-	\end{table}%		
 
 	\section{Discussion}
 	
