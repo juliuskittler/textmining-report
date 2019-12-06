@@ -13,6 +13,7 @@
 \newunicodechar{ﬁ}{fi}
 \addbibresource{textmining_julki092.bib}
 \newcommand{\HRule}[1]{\rule{\linewidth}{#1}}
+\newcommand{\comment}[1]{}
 
 \begin{document}
 	
@@ -154,14 +155,64 @@
 
 	\section{Theory}
 	
-	\subsection{Na\"ive Bayes}
-	
-	tbd
-	
 	\subsection{Gradient Boosting Decision Tree (GBDT)}
 	
-	Gradient boosting with decision trees became popular with the development of XGBoost in 2016 \cite{chen_xgboost:_2016} and lightGBmM in 2017 \cite{ke_lightgbm:_2017}. In 2018, another GBDT library called Catboost was published, which claims to handle categorical features particularly well. Furthermore, Catboost was shown to outperform XGBoost and lightGBM on various datasets with default parameters. For these reasons, Catboost is used in this project. The implementational details of Catboost are rather involved and are therefore not fully covered in this report. Instead, what follows is a short description of how GBDT work in general and how Catboost is different from other GBDT implementations.
+	Gradient boosting with decision trees became popular with the development of XGBoost in 2016 \cite{chen_xgboost:_2016} and lightGBM in 2017 \cite{ke_lightgbm:_2017}. In 2018, another GBDT library called Catboost was published, which claims to handle categorical features particularly well. Furthermore, Catboost was shown to outperform XGBoost and lightGBM on various datasets with default parameters. For these reasons, Catboost is used in this project. The implementational details of Catboost are rather involved and are therefore not fully covered in this report. Instead, what follows is a short description of how GBDT work in general and how Catboost is different from other GBDT implementations.
 	
+	\subsubsection{GBDT in General}
+	
+	In GBDT, several concepts commonly used in machine learning are combined: gradients, boosting and decision trees. The main idea of \textbf{boosting} is to iteratively fit simplistic, additive models (so-called weak models) such that each model reduces the errors made by the ensemble model in the corresponding previous iteration. This can be achieved by fitting each model directly on the residuals of the ensemble model in the previous iteration. Gradient boosting generalizes this approach: each weak model is fitted on the \textbf{gradient} of the residuals from the previous iteration  \cite{chen_xgboost:_2016} \cite{friedman_greedy_2001}  \cite{noauthor_kaggle_nodate}, where the residuals are computed based on a differentiable loss function.
+	
+	Recall that the gradient takes a scalar function (returning 1 scalar value given $P$ parameters) and returns a vector function (returning $P$ values, each of them the partial derivative of the scalar function w.r.t. the $p$th parameter). In our case, the scalar function is the differentiable loss function $L^{(t-1)}$:
+
+	\begin{align}
+	\mathrm{L^{(t-1)}} = \sum_{i=1}^n l(y_i, \hat{y}_i^{(t-1)}), 
+	\end{align} 
+	
+	where $i = 1, ..., N$ is the index for the training observations, $\hat{y_i}^{(t-1)}$ is the prediction for the $i$th training observation based on the ensemble model from the previous iteration and $l(y_i, \hat{y}_i^{(t-1)})$ is the loss for the $i$th training observation. If we take it's gradient with respect to $\hat{y}_i^{(t-1)}$, we get the following:
+	
+	\begin{align}
+		\nabla L^{(t-1)} = \left[\frac{\partial l(y_1, \hat{y}_1^{(t-1)})}{\partial \hat{y}_1^{(t-1)}}, \frac{\partial l(y_2, \hat{y}_2^{(t-1)})}{\partial \hat{y}_2^{(t-1)}}, ..., \frac{\partial l(y_N, \hat{y}_N^{(t-1)})}{\partial \hat{y}_N^{(t-1)}}\right]
+	\end{align}
+	
+	This is a row vector with N elements, where each element corresponds to the derivative of the loss of the $i$th training observation with respect to its prediction $\hat{y_i}^{(t-1)}$. For instance, if we used the squared error loss function, $l(y_i, \hat{y}_i^{(t-1)}) = \frac{1}{2} \left(y_i - \hat{y}_i^{(t-1)}\right)^2$, the elements in the gradient vector would be $\frac{\partial l(y_i, \hat{y}_i^{(t-1)})}{\partial \hat{y}_i^{(t-1)}} = -\left(y_i - \hat{y}_i^{(t-1)}\right)$.
+	
+	In every iteration $t$, we would like to add a weak model that helps to decrease the loss from the previous iteration $L^{(t-1)}$. Since the gradient points into the direction of the maximum increase of the loss function $L^{(t-1)}$ but we would like to decrease the loss, we consider the negative gradient $-L^{(t-1)}$.
+	We start by initializing $\hat{y}_i^{(0)}$, for instance as the mean of $y$ from the training data. In every subsequent iteration $t$, we fit a weak model that predicts the negative gradient. We also have to learn a parameter that determines the step size towards the negative gradient. When we then add this model to the ensemble classifier, we essentially perform a step of gradient descent (not as usual by changing some parameters $w$, but instead by adding another weak model to an ensemble classifier). The prediction of the ensemble model for any observation $i$ can be represented as:
+	
+	\begin{align}
+	 \hat{y}_i = \sum_{t = 0}^T \hat{y}_i^{(t)})
+	\end{align}
+	
+	Note that $\hat{y}_i$ may not be the final output of the model. For classification, we might pass $\hat{y}_i$ as input to a softmax function to get the predicted class for observation $i$.
+	
+	Finally, note that different types of weak models can be used with gradient boosting. However, in GBDT specifically, every weak model is a \textbf{decision tree}. Decision trees are tree-shaped models that consist of nodes connected with branches. To make a prediction, for an observation $i$, its feature vector $\textbf{x}_i$ is passed from the root node through the tree until it lands in a leaf node. For all vectors $\textbf{x}_i$ in the same leaf node, the prediction is made. At each node within the tree, a decision is made about the branch along which the $\textbf{x}_i$ is to be passed further. The decision is made based on a threshold $\tau_n$ for the value $\textbf{x}_{i}^{(j)}$, where $j$ is the index of the variable used at the threshold and $n$ is the index of the node. The parameters that need to be learned are the thresholds $\tau_n$, the variable indices $j$ used at the thresholds and depending on the implementation also the structure of the tree (e.g. number of nodes, depth of the tree).
+
+	\subsubsection{Catboost}
+	
+	Catboost resembles other GBDT systems such as XGBoost and lightGBM. However, it distinguishes itself in two main aspects: the way in which categorical features are handled and the way in which bias is handled \cite{dorogush_catboost:_2018}. 
+	
+	\comment{
+		
+	
+	\begin{align}
+		\mathrm{L^{(t)}} = \sum_{i=1}^n l(y_i, \hat{y_i}^{(t-1)} + f_t(\textbf{x}_i)), 
+	\end{align}
+
+		
+	To fit each tree, the gradient of a differentiable loss function is used. Non-numerical features are generally converted to numerical features and therefore the gradient can also be used for categorical variables.
+		
+		
+	- Questions:
+		- Errors made by the ensemble (?) classifier
+		- All variables are converted to numerical features and therefore
+		- Is the structure tree learned once? Or is a new tree structure fitted in every iteration? (Are the gradients also used for the tree structure or only for the tresholds?)
+		- How is the gradient used for numerical variables?
+		- Are non-numerical features are generally converted to numerical features???
+		
+	}
+
+
 	
 	\subsection{Long Short-Term Memory (LSTM)}
 	
