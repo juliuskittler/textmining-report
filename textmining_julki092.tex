@@ -147,7 +147,7 @@
 	There are mainly three research questions that this report aims to address. The focus is not only on the stock price classification itself but importantly also on understanding how the model works and on evaluating whether the best model could be used in practice.
 	
 	\begin{enumerate}
-		\item Research question: Does a RNN with LSTM or the GBDT Catboost perform better at classifying stock price movements based on text data from 8-K filings?
+		\item Research question: Does a RNN with LSTM or the GBDT CatBoost perform better at classifying stock price movements based on text data from 8-K filings?
 		\item Research question: How can the best model be interpreted: In which scenario does it perform better or worse (event of the 8-K filing, industry and location the company)? What are the most important features? 
 		\item Research question: Could the best model be profitable when used in an automatic trading strategy?
 	
@@ -157,11 +157,11 @@
 	
 	\subsection{Gradient Boosting Decision Tree (GBDT)}
 	
-	Gradient boosting with decision trees became popular with the development of XGBoost in 2016 \cite{chen_xgboost:_2016} and lightGBM in 2017 \cite{ke_lightgbm:_2017}. In 2018, another GBDT library called Catboost was published, which claims to handle categorical features particularly well. Furthermore, Catboost was shown to outperform XGBoost and lightGBM on various datasets with default parameters. For these reasons, Catboost is used in this project. The implementational details of Catboost are rather involved and are therefore not fully covered in this report. Instead, what follows is a short description of how GBDT work in general and how Catboost is different from other GBDT implementations.
+	Gradient boosting with decision trees became very popular with the development of the GBDT libraries XGBoost in 2016 \cite{chen_xgboost:_2016} and lightGBM in 2017 \cite{ke_lightgbm:_2017}. In 2018, another GBDT library called CatBoost was published and shown to outperform XGBoost and lightGBM on various datasets with default parameters \cite{dorogush_catboost:_2018}. For this reason, CatBoost is used in this project. The implementational details of CatBoost are rather involved and are therefore not fully covered in this report. Instead, what follows is a short description of how GBDT work in general and how CatBoost is different from other GBDT implementations.
 	
 	\subsubsection{GBDT in General}
 	
-	In GBDT, several concepts commonly used in machine learning are combined: gradients, boosting and decision trees. The main idea of \textbf{boosting} is to iteratively fit simplistic, additive models (so-called weak models) such that each model reduces the errors made by the ensemble model in the corresponding previous iteration. This can be achieved by fitting each model directly on the residuals of the ensemble model in the previous iteration. Gradient boosting generalizes this approach: each weak model is fitted on the \textbf{gradient} of the residuals from the previous iteration  \cite{chen_xgboost:_2016} \cite{friedman_greedy_2001}  \cite{noauthor_kaggle_nodate}, where the residuals are computed based on a differentiable loss function.
+	In GBDT, several concepts commonly used in machine learning are combined: gradients, boosting and decision trees. The main idea of \textbf{boosting} is to iteratively fit simplistic, additive models (so-called weak models) such that each model reduces the errors made by the ensemble model in the corresponding previous iteration. This can be achieved by fitting each model directly on the residuals of the ensemble model in the previous iteration. Gradient boosting generalizes this approach: each weak model is fitted on the \textbf{gradient} of the residuals from the previous iteration  \cite{chen_xgboost:_2016} \cite{friedman_greedy_2001}  \cite{noauthor_kaggle_nodate}, where the term residuals refers to a differentiable loss function.
 	
 	Recall that the gradient takes a scalar function (returning 1 scalar value given $P$ parameters) and returns a vector function (returning $P$ values, each of them the partial derivative of the scalar function w.r.t. the $p$th parameter). In our case, the scalar function is the differentiable loss function $L^{(t-1)}$:
 
@@ -178,7 +178,7 @@
 	This is a row vector with N elements, where each element corresponds to the derivative of the loss of the $i$th training observation with respect to its prediction $\hat{y_i}^{(t-1)}$. For instance, if we used the squared error loss function, $l(y_i, \hat{y}_i^{(t-1)}) = \frac{1}{2} \left(y_i - \hat{y}_i^{(t-1)}\right)^2$, the elements in the gradient vector would be $\frac{\partial l(y_i, \hat{y}_i^{(t-1)})}{\partial \hat{y}_i^{(t-1)}} = -\left(y_i - \hat{y}_i^{(t-1)}\right)$.
 	
 	In every iteration $t$, we would like to add a weak model that helps to decrease the loss from the previous iteration $L^{(t-1)}$. Since the gradient points into the direction of the maximum increase of the loss function $L^{(t-1)}$ but we would like to decrease the loss, we consider the negative gradient $-L^{(t-1)}$.
-	We start by initializing $\hat{y}_i^{(0)}$, for instance as the mean of $y$ from the training data. In every subsequent iteration $t$, we fit a weak model that predicts the negative gradient. We also have to learn a parameter that determines the step size towards the negative gradient. When we then add this model to the ensemble classifier, we essentially perform a step of gradient descent (not as usual by changing some parameters $w$, but instead by adding another weak model to an ensemble classifier). The prediction of the ensemble model for any observation $i$ can be represented as:
+	We start by initializing $\hat{y}_i^{(0)}$ as a constant for all training observations $i$, for instance as the mean of $y$ from the training data. In every subsequent iteration $t$, we fit a weak model that predicts the negative gradient. We also learn a parameter that determines the step size towards the negative gradient. When we then add this model to the ensemble classifier, we essentially perform a step of gradient descent (not as usual by changing some parameters $w$, but instead by adding another weak model to an ensemble classifier). The prediction of the ensemble model for any observation $i$ can be represented as:
 	
 	\begin{align}
 	 \hat{y}_i = \sum_{t = 0}^T \hat{y}_i^{(t)})
@@ -186,15 +186,18 @@
 	
 	Note that $\hat{y}_i$ may not be the final output of the model. For classification, we might pass $\hat{y}_i$ as input to a softmax function to get the predicted class for observation $i$.
 	
-	Finally, note that different types of weak models can be used with gradient boosting. However, in GBDT specifically, every weak model is a \textbf{decision tree}. Decision trees are tree-shaped models that consist of nodes connected with branches. To make a prediction, for an observation $i$, its feature vector $\textbf{x}_i$ is passed from the root node through the tree until it lands in a leaf node. For all vectors $\textbf{x}_i$ in the same leaf node, the prediction is made. At each node within the tree, a decision is made about the branch along which the $\textbf{x}_i$ is to be passed further. The decision is made based on a threshold $\tau_n$ for the value $\textbf{x}_{i}^{(j)}$, where $j$ is the index of the variable used at the threshold and $n$ is the index of the node. The parameters that need to be learned are the thresholds $\tau_n$, the variable indices $j$ used at the thresholds and depending on the implementation also the structure of the tree (e.g. number of nodes, depth of the tree).
+	Finally, note that different types of weak models can be used with gradient boosting. However, in GBDT specifically, every weak model is a \textbf{decision tree}. Decision trees are tree-shaped models that consist of nodes connected with branches. To make a prediction, for an observation $i$, its feature vector $\textbf{x}_i$ is passed from the root node through the tree until it lands in a leaf node. For all vectors $\textbf{x}_i$ in the same leaf node, the same prediction is made. At each node within the tree, a decision is made about the branch along which the $\textbf{x}_i$ is to be passed further. The decision is made based on a threshold $\tau_n$ for the value $\textbf{x}_{i}^{(j)}$, where $j$ is the index of the variable used at the threshold and $n$ is the index of the node. The parameters that need to be learned are the thresholds $\tau_n$, the variable indices $j$ used at the thresholds and depending on the implementation also the structure of the tree (e.g. number of nodes, depth of the tree).
 
-	\subsubsection{Catboost}
+	\subsubsection{CatBoost}
 	
-	Catboost resembles other GBDT systems such as XGBoost and lightGBM. However, it distinguishes itself in two main aspects: the way in which categorical features are handled and the way in which bias is handled \cite{dorogush_catboost:_2018}. 
+	CatBoost resembles other GBDT systems such as XGBoost and lightGBM. However, it distinguishes itself in two main aspects: unbiased gradient estimates and categorical feature handling \cite{dorogush_catboost:_2018}. 
+	
+	The first aspect addresses the following issue. In other GBDT libraries, gradients to be used in iteration $t$ are computed for the same training observations based on which the last weak model in iteration $t-1$ was trained. This may lead to overfitting. CatBoost addresses this issue by training separate ensemble models $M_i$, where $i = 1, ..., N$ is the index for the training observations. In every iteration of CatBoost, a weak model is added to each of the ensemble models $M_i$. Importantly, each weak model is trained based on the gradients from the $1, ..., i-1$ previous training observations. This way, the weak model added to $M_i$ is trained without the gradient value of the observation $i$. CatBoost uses further tricks to reduce computational complexity.
+	
+	The second aspect relates to categorical features. Two common ways of dealing with categorical features in GBDT are a) one hot encoding, i.e. creating a binary feature for every level of a categorical feature, and b) computing summary statistics. An example of summary statistics described by CatBoost is the following. If the target variable is numeric, we can  replace each level of the categorical feature with the mean of the target variable (of all the observations who have the same level of the categorical feature). The problem here is that this may lead to overfitting, in particular if there are only few observations with the same level of the categorical feature. CatBoost's innovation here is the following. First, the data set is shuffled randomly. Then, the categorical variable value is replaced for each observation as described above. However, when computing the summary statistic to replace the categorical variable value of observation $i$, only the previous observations $1, ..., i-1$ are used.
 	
 	\comment{
 		
-	
 	\begin{align}
 		\mathrm{L^{(t)}} = \sum_{i=1}^n l(y_i, \hat{y_i}^{(t-1)} + f_t(\textbf{x}_i)), 
 	\end{align}
@@ -301,7 +304,7 @@
 	
 	\subsubsection{GBDT}
 	
-	The loss function used for Catboost is called \lstinline{MultiClass} loss function and is essentially a weighted softmax function \cite{noauthor_multiclassification:_nodate}. It is computed as a scalar value across all observations and classes. The definition is as follows:
+	The loss function used for CatBoost is called \lstinline{MultiClass} loss function and is essentially a weighted softmax function \cite{noauthor_multiclassification:_nodate}. It is computed as a scalar value across all observations and classes. The definition is as follows:
 	
 	\begin{align}
 	L = \frac{\sum_{i = 1}^N w_i \log \left(\frac{\exp a_{i, t_i}}{\sum_{j = 0}^{M-1} \exp a_{i, j}}\right)}{\sum_{i = 1}^N w_i}, 
@@ -313,7 +316,7 @@
 		
 	\subsubsection{LSTM}
 	
-	The loss function used for the LSTM is similar to the loss function from Catboost. However, the observations $i$ are not weighted by any particular weights $w_i$. Essentially, a softmax function is used in the output layer so that the model directly outputs probabilities for each observation $i$ to belong to class $j$. Then, the loss function \lstinline{CategoricalCrossentropy} is used in \lstinline{TensorFlow} \cite{noauthor_module:_nodate}. For a multi-class problem, the categorical cross-entropy is defined as follows:
+	The loss function used for the LSTM is similar to the loss function from CatBoost. However, the observations $i$ are not weighted by any particular weights $w_i$. Essentially, a softmax function is used in the output layer so that the model directly outputs probabilities for each observation $i$ to belong to class $j$. Then, the loss function \lstinline{CategoricalCrossentropy} is used in \lstinline{TensorFlow} \cite{noauthor_module:_nodate}. For a multi-class problem, the categorical cross-entropy is defined as follows:
 	
 	\begin{align}
 	L = \frac{\sum_{i = 1}^N \log \left(\frac{\exp a_{i, t_i}}{\sum_{j = 0}^{M-1} \exp a_{i, j}}\right)}{N}, 
