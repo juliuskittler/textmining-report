@@ -262,7 +262,7 @@
 	Table ~\ref{table:stats_by_data} shows descriptive statistics for the percentage changes before discretization (for all data and for training, test and validation set separately, which will be elaborated on in the methods section). The corresponding distribution is visualized in figure ~\ref{fig:dist_target_nondisc}. Note that visually, the distributions for training, test and validation set seem very similar, and hence the distribution was only plotted for the overall data. Approx. 50 percent of the percentage changes are between $-1.6$ percent and $+1.6$ percent, centered at $0$. The distributions differ slightly in their maximum values because the total number of data points with large percentage changes is relatively small.
 
 	
-		\begin{table}[h!]
+	\begin{table}[h!]
 		\centering
 		\caption{Descriptive statistics for percentage change by data type}
 		\label{table:stats_by_data}
@@ -409,6 +409,54 @@
 	In addition to reporting the evaluation metrics numerically, they are also visualized by certain categorical variables (e.g. industry of the company, event of the 8-K filings, location of the company) in order to identify issues as well as future potentials of the models. 
 	
 	\section{Results}
+
+
+	\begin{table}[h!]
+		\centering
+		\caption{Classifier performance on the training data}
+		\label{table:results_valid}
+		
+		\begin{tabular}{lrrrrrrrr}
+			\toprule
+			Data Type &     accuracy &     precision &     recall &    f1 \\
+			\midrule
+			Random Guess   &  0.20 &  0.20 &   0.20 &  0.20 \\
+			Majority Class &    0.20 &  0.20 &   0.20 &   0.20 \\
+			Naive Bayes       &   0.25 & 0.25 &  0.25 &  0.21 \\
+			SVM      &   0.25 & 0.25 &  0.25 &  0.24 \\
+			Random Forrest      &  0.29 & 0.29 & 0.29 &  0.29 \\
+			Logistic Regression   &  0.29 & 0.29 &  0.29 &  0.29 \\
+			Catboost (Default)   &  0.31 & 0.30 &  0.31 & 0.29 \\
+			Catboost (Grid Search)   &  41763.0 & -0.9386 &  4.9105 &  0.0012 \\
+			\bottomrule
+		\end{tabular}
+		
+	\end{table}%	
+
+
+
+	\begin{table}[h!]
+		\centering
+		\caption{Classifier performance on the validation data}
+		\label{table:results_valid}
+		
+		\begin{tabular}{lrrrrrrrr}
+			\toprule
+			Data Type &     accuracy &     precision &     recall &    f1 \\
+			\midrule
+			Random Guess   &  0.20 &  0.20 &   0.20 &  0.20 \\
+			Majority Class &    0.20 &  0.20 &   0.20 &   0.20 \\
+			Naive Bayes       &   0.25 & 0.25 &  0.25 &  0.21 \\
+			SVM      &   0.25 & 0.25 &  0.25 &  0.24 \\
+			Random Forrest      &  0.29 & 0.29 & 0.29 &  0.29 \\
+			Logistic Regression   &  0.29 & 0.29 &  0.29 &  0.29 \\
+			Catboost (Default)   &  0.31 & 0.30 &  0.31 & 0.29 \\
+			Catboost (Grid Search)   &  41763.0 & -0.9386 &  4.9105 &  0.0012 \\
+			\bottomrule
+		\end{tabular}
+		
+	\end{table}%	
+
 
 	\section{Discussion}
 	
