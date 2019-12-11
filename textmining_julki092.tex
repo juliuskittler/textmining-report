@@ -319,11 +319,9 @@
 	\end{figure}
 
 
-	\subsubsection{Other}
+	\subsubsection{8-K Filings}
 	
 	The distribution of the number of tokens per document is shown in figure ~\ref{fig:dist_num_tokens}. There are few documents with more than 10000 tokens. The largest 8-K filing has approximately 75000 tokens. Note that any filings with more than 1 Mio. characters have been filtered out before during pre-processing.
-	
-	The number of occurences of each 8-K events is displayed in figure ~\ref{fig:dist_8k_events}. Note that one 8-K filing can contain information about more than one event. Therefore, the total number of events is more than twice as large as the total number of 8-K filings. The five most frequent events are: 9.01 (financial statements and exhibits), 2.02 (results of operations and financial condition), 8.01 (other events), 7.01 (regulation FD disclosure) and 5.02 dDeparture of directors or certain officers; election of directors; appointment of certain officers; compensatory arrangements of certain officers).
 
 	\begin{figure}[h!]
 		\includegraphics[width=\linewidth]{img/dist_num_tokens.png}
@@ -331,11 +329,22 @@
 		\label{fig:dist_num_tokens}
 	\end{figure}
 
+	The number of occurences of each 8-K event is displayed in figure ~\ref{fig:dist_8k_events}. Note that one 8-K filing can contain information about more than one event. Therefore, the total number of events, 89976, is more than twice as large as the total number of 8-K filings. The five most frequent events are: 9.01 (financial statements and exhibits), 2.02 (results of operations and financial condition), 8.01 (other events), 7.01 (regulation FD disclosure) and 5.02 (Departure of directors or certain officers; election of directors; appointment of certain officers; compensatory arrangements of certain officers).
+	
+	In figure ~\ref{fig:dist_class_by_8k}, the number of occurences of each 8-K event is again displayed, this time however with additional information about the corresponding discretized percentage change. For instance, one can see that there were approx. 7000 8-K filings with information about "Item 7.01" that were followed by a large \textit{decrease} in the stock price (dark orange) and another 7000 8-K filings with information about "Item 7.01" that were followed by a large \textit{increase} in the stock price (dark grey). Importantly, one can see that the same 8-K event, e.g. "Item 7.01", generally corresponds to an equally large number of stock price increases and decreases. In other words, whether a particular 8-K event contributes to a stock price increase or decrease does not seem to depend on the even itself but rather on the actual content of the 8-K filing about this event.
+	
 
 	\begin{figure}[h!]
 		\includegraphics[width=\linewidth]{img/dist_8k_events.png}
 		\caption{Number of occurences of 8-K events}
 		\label{fig:dist_8k_events}
+	\end{figure}
+
+
+	\begin{figure}[h!]
+		\includegraphics[width=\linewidth]{img/dist_class_by_8k.png}
+		\caption{Number of occurences of classes by 8-K event}
+		\label{fig:dist_class_by_8k}
 	\end{figure}
 
 
