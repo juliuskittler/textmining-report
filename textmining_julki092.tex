@@ -21,7 +21,7 @@
 	
 	\title{\textsc{732A92 Text Mining} \\ [2.0cm]
 		\HRule{0.5pt} \\
-		\LARGE \textbf{\uppercase{Classifying Stock Price Movements based on 8-K SEC filings: A comparison of Recurrent Neural Networks and Gradient Boosting Decision Trees}}
+		\LARGE \textbf{\uppercase{Classifying Stock Price Movements based on 8-K SEC filings with Gradient Boosting Decision Trees (CatBoost)}}
 		\HRule{2pt} \\ [0.5cm]
 		\normalsize \today \vspace*{5\baselineskip}}
 	
@@ -37,7 +37,7 @@
 	
 	\begin{abstract}
 		
-	This text mining project makes use of filings from the U.S. Securities and Exchange Commission (SEC), in particular 8-K filings, to forecast short-term percentage changes in stock prices. 8-K filings have to be published by public companies in the U.S. for certain defined, business-relevant events. The forecasting problem is approached as a classification problem with five classes: large decrease, small decrease, no change, small increase and large increase (of the stock price before and after filing date of the 8-K filing). Instead of using existing data sets, a new, up-to-date data set is created, with data for the year 2018 and the first quarter of 2019. Furthermore, this project makes a contribution by comparing the previously successful methods for this problem: recurrent neural networks (LSTM) with GloVe word embeddings and gradient boosting decision trees (GBDT) with TF-IDF bag-of-words. Exclusively text data was used for training the models. The best model could achieve an additional 10 percent accuracy compared to the majority classifier, which matches with previous findings from the literature.
+	This text mining project makes use of filings from the U.S. Securities and Exchange Commission (SEC), in particular 8-K filings, to forecast short-term percentage changes in stock prices. 8-K filings have to be published by public companies in the U.S. for certain defined, business-relevant events. The forecasting problem is approached as a classification problem with five classes: large decrease, small decrease, no change, small increase and large increase (of the stock price before and after filing date of the 8-K filing). Instead of using existing data sets, a new, up-to-date data set is created, with data for the year 2018 and the first quarter of 2019. Furthermore, this project makes a contribution by testing a new approach to this problem: gradient boosting decision trees (GBDT) with tf-idf bag-of-words. Previous research had found random forests to perform very well on this problem. Hence, the methodological choice for this project fell on GBDT as a more advanced ensemble model. Exclusively text data was used for training the models. The best model could achieve an additional 10 percent accuracy compared to the majority classifier, which matches with previous findings from the literature.
 	
 	\end{abstract}
 
@@ -149,20 +149,17 @@
 	There are mainly three research questions that this report aims to address. The focus is not only on the stock price classification itself but importantly also on evaluating whether the best model could be used in practice.
 	
 	\begin{enumerate}
-		\item Research question: Does a RNN with LSTM or the GBDT CatBoost perform better at classifying stock price movements based on text data from 8-K filings?
-		\item Research question: How can the best model be interpreted: In which scenario does it perform better or worse (event of the 8-K filing, industry and location the company)? What are the most important features? 
+		\item Research question: How does the performance of CatBoost compare to other common classifiers, in particular random forrest (on validation data)?
+		\item Research question: How does the best model perform on the test data from the first quarter of 2019?
 		\item Research question: Could the best model be profitable when used in an automatic trading strategy?
 	
 	\end{enumerate}
 
 	\section{Theory}
 	
-	\subsection{Gradient Boosting Decision Tree (GBDT)}
-	
 	Gradient boosting with decision trees became popular with the development of XGBoost in 2016 \cite{chen_xgboost:_2016} and lightGBM in 2017 \cite{ke_lightgbm:_2017}. In 2018, another GBDT library called Catboost was published, which claims to handle categorical features particularly well. Furthermore, Catboost was shown to outperform XGBoost and lightGBM on various datasets with default parameters. For this reason, Catboost is used in this project. The implementational details of Catboost are rather involved and are therefore not fully covered in this report. Instead, what follows is a short introduction to GBDT and a summary about differences between Catboost and other GBDT implementations.
 
-	
-	\subsubsection{GBDT in General}
+	\subsection{Gradient Boosting Decision Trees (GBDT) in General}
 	
 	In GBDT, several concepts commonly used in machine learning are combined: gradients, boosting and decision trees. The main idea of \textbf{boosting} is to iteratively fit simplistic, additive models (so-called weak models) such that each model reduces the errors made by the ensemble model in the corresponding previous iteration. This can be achieved by fitting each model directly on the residuals of the ensemble model in the previous iteration. Gradient boosting generalizes this approach: each weak model is fitted on the \textbf{gradient} of the residuals from the previous iteration  \cite{chen_xgboost:_2016} \cite{friedman_greedy_2001}  \cite{noauthor_kaggle_nodate}, where the term residuals refers to a differentiable loss function.
 	
@@ -192,7 +189,7 @@
 	Finally, note that different types of weak models can be used with gradient boosting. However, in GBDT specifically, every weak model is a \textbf{decision tree}. Decision trees are tree-shaped models that consist of nodes connected with branches. To make a prediction, for an observation $i$, its feature vector $\textbf{x}_i$ is passed from the root node through the tree until it lands in a leaf node. For all vectors $\textbf{x}_i$ in the same leaf node, the prediction is made. At each node within the tree, a decision is made about the branch along which the $\textbf{x}_i$ is to be passed further. The decision is made based on a threshold $\tau_n$ for the value $\textbf{x}_{i}^{(j)}$, where $j$ is the index of the variable used at the threshold and $n$ is the index of the node. Among others, the parameters that need to be learned are the thresholds $\tau_n$, the variable indices $j$ used at the thresholds and depending on the implementation also the structure of the tree (e.g. number of nodes, depth of the tree).
 
 
-	\subsubsection{CatBoost}
+	\subsection{CatBoost}
 	
 	CatBoost resembles other GBDT systems such as XGBoost and lightGBM. However, it distinguishes itself in two main aspects: unbiased gradient estimates and categorical feature handling \cite{dorogush_catboost:_2018}. 
 	
@@ -220,10 +217,7 @@
 		
 	}
 
-	\subsection{Long Short-Term Memory (LSTM)}
-	
-	tbs
-	
+
 	\section{Data}
 	
 	\subsection{Sources}
@@ -384,11 +378,7 @@
 	
 	\subsection{Loss Function}
 	
-	For multi-class classification problems, the softmax function is generally used as loss function (in neural networks and in gradient boosting trees). Hence, it is also used for this project. The loss functions used for GBDT and LSTM are generally the same but they differ slightly because in GBDT, each observation $i$ is weighted with $w_i$.
-	
-	\subsubsection{GBDT}
-	
-	The loss function used for CatBoost is called \lstinline{MultiClass} loss function and is essentially a weighted softmax function \cite{noauthor_multiclassification:_nodate}. It is computed as a scalar value across all observations and classes. The definition is as follows:
+	For multi-class classification problems, the softmax function is generally used as loss function. Hence, it is also used for this project. However, the chosen loss function differs slightly from the softmax function because in GBDT, each observation $i$ is weighted with $w_i$. The loss function used for CatBoost is called \lstinline{MultiClass} loss function and is essentially a weighted softmax function \cite{noauthor_multiclassification:_nodate}. It is computed as a scalar value across all observations and classes. The definition is as follows:
 	
 	\begin{align}
 	L = \frac{\sum_{i = 1}^N w_i \log \left(\frac{\exp a_{i, t_i}}{\sum_{j = 0}^{M-1} \exp a_{i, j}}\right)}{\sum_{i = 1}^N w_i}, 
@@ -397,16 +387,6 @@
 	where $i = 1, ..., N$ is the index for the observation, $j = 0, ..., M-1$ is the index of the class, $a_{i, j}$ is the model output for observation $i$ and class $j$, $w_i$ is the weight assigned for observation $i$ during training, and $t_i$ is the index of the true class of observation $i$ so that $a_{i, t_i}$ is the model output for the true class of observation $i$.
 	
 	Essentially, the term in the parentheses is the softmax function, which returns a value between 0 and 1 for each observation $i$ to belong to its true class $t_i$. If the model performs well for observation $i$, then the softmax value will be large. For instance, if the value is 1, this means that according to the model, we have a probability of 1 that observation $i$ is from class $t_i$, i.e. from the true class of the observation. In other words, the model would perfectly identify the true class of observation $i$. Since the log is taken, and since $log(1)=0$, the loss incurred for this perfectly classified observation will be 0. If the softmax value is smaller than 1, the loss for an observation will be negative and will hence affect the training process.
-	
-	\subsubsection{LSTM}
-	
-	The loss function used for the LSTM is similar to the loss function from CatBoost. However, the observations $i$ are not weighted by any particular weights $w_i$. Essentially, a softmax function is used in the output layer so that the model directly outputs probabilities for each observation $i$ to belong to class $j$. Then, the loss function \lstinline{CategoricalCrossentropy} is used in \lstinline{TensorFlow} \cite{noauthor_module:_nodate}. For a multi-class problem, the categorical cross-entropy is defined as follows:
-	
-	\begin{align}
-	L = \frac{\sum_{i = 1}^N \log \left(\frac{\exp a_{i, t_i}}{\sum_{j = 0}^{M-1} \exp a_{i, j}}\right)}{N}, 
-	\end{align}
-	
-	where the notation is the same as in the loss function for GBDT. Note that in other notations this loss function usually has another sum over the classes along with an indicator function that is multiplied with the log (implying whether observation $i$ is from class $j$). However, here $a_{i, t_i}$ is defined as the model output for the true class of observation $i$ and hence the indicator function is not needed.
 	
 	\subsection{Experiment Description}
 	
@@ -433,13 +413,6 @@
 	
 	In summary, the final CatBoost model was a default CatBoost classifier, where the \lstinline{TfidfVectorizer} was used with parameters 0.001 for \lstinline{min_df} and 0.9 for \lstinline{max_df}. Only unigrams were used.
 	
-	\subsubsection{LSTM}
-	
-	Two LSTM models were trained and evaluated. Their architectures are visualized below. The difference between the two models is that in the first model, one dense layer is used after the LSTM layer, whereas in the second model, two tense layers are used. Due to long run-times for training, no parameter search was conducted.
-	
-	Both models used a trainable embedding layer that was initialized with GloVe word embeddings. The maximum number of words per sequence was set to 10K so that almost each document was fully used in the model (see figure ~\ref{fig:dist_num_tokens}). The word embedding dimension was set to 100 in order to obtain a good balance between efficiency and performance Furthermore, a drop-off of 0.5 was used in order to prevent overfitting.
-	
-
 
 	\subsection{Best Model Evaluation}
 	
@@ -448,31 +421,31 @@
 	In addition to reporting the evaluation metrics numerically, they are also visualized by certain categorical variables (e.g. industry of the company, event of the 8-K filings, location of the company) in order to identify issues as well as future potentials of the models. 
 	
 	\section{Results}
+	
+	\subsection{Model Comparison}
 
+	The performance of all classifiers on the training and validation data can be found in tables ~\ref{table:results_train} and ~\ref{table:results_valid} respectively.
 
 	\begin{table}[h!]
 		\centering
 		\caption{Classifier performance on the training data}
-		\label{table:results_valid}
+		\label{table:results_train}
 		
 		\begin{tabular}{lrrrrrrrr}
 			\toprule
-			Data Type &     accuracy &     precision &     recall &    f1 \\
+			Model &     accuracy &     precision &     recall &    f1 \\
 			\midrule
 			Random Guess   &  0.20 &  0.20 &   0.20 &  0.20 \\
 			Majority Class &    0.20 &  0.20 &   0.20 &   0.20 \\
-			Naive Bayes       &   0.25 & 0.25 &  0.25 &  0.21 \\
-			SVM      &   0.25 & 0.25 &  0.25 &  0.24 \\
-			LSTM+1FNN  &   0.25 & 0.25 &  0.25 &  0.24 \\
-			Random Forrest      &  0.29 & 0.29 & 0.29 &  0.29 \\
-			Logistic Regression   &  0.29 & 0.29 &  0.29 &  0.29 \\
-			Catboost (Final)   &  0.31 & 0.30 &  0.31 & 0.29 \\
+			Naive Bayes       &   0.31 & 0.30 &  0.31 &  0.29 \\
+			SVM      &  0.43 & 0.44 & 0.43 &  0.42 \\
+			Random Forrest      &  0.98 & 0.98 & 0.98 &  0.98 \\
+			Logistic Regression   &  0.42 & 0.43 & 0.42 &  0.42 \\
+			Catboost (Final)   &  0.51 & 0.52 &  0.51 & 0.51 \\
 			\bottomrule
 		\end{tabular}
 		
 	\end{table}%	
-
-
 
 	\begin{table}[h!]
 		\centering
@@ -481,22 +454,61 @@
 		
 		\begin{tabular}{lrrrrrrrr}
 			\toprule
-			Data Type &     accuracy &     precision &     recall &    f1 \\
+			Model &     accuracy &     precision &     recall &    f1 \\
 			\midrule
 			Random Guess   &  0.20 &  0.20 &   0.20 &  0.20 \\
 			Majority Class &    0.20 &  0.20 &   0.20 &   0.20 \\
-			Naive Bayes       &   0.25 & 0.25 &  0.25 &  0.21 \\
-			SVM      &   0.25 & 0.25 &  0.25 &  0.24 \\
-			LSTM+1FNN  &   0.25 & 0.25 &  0.25 &  0.24 \\
-			Random Forrest      &  0.29 & 0.29 & 0.29 &  0.29 \\
-			Logistic Regression   &  0.29 & 0.29 &  0.29 &  0.29 \\
-			Catboost (Default)   &  0.31 & 0.30 &  0.31 & 0.29 \\
+			Naive Bayes       &   0.25 & 0.25 &  0.25 &  0.23 \\
+			SVM      &  0.26 & 0.26 & 0.26 & 0.25 \\
+			Random Forrest      &  0.28 & 0.27 & 0.28 & 0.27 \\
+			Logistic Regression   &  0.29 & 0.29 &  0.29 &  0.28 \\
+			Catboost (Final)   &  0.30 & 0.30 &  0.30 & 0.30 \\
 			\bottomrule
 		\end{tabular}
 		
 	\end{table}%	
 
+	\subsection{Best Model}
+	
+	\subsubsection{Evaluation Metrics}
 
+	The performance of the final model on the test data from QTR1 2019 is displayed in table  REFERENCE. The corresponding confusion matrix is shown in table REFERENCE and the class-wise precision is shown in table REFERENCE. Recall that the final model is the default CatBoost classifier with tf-idf vectorization using 0.001 for \lstinline{min_df} and 0.9 for \lstinline{max_df}.
+	
+	\subsubsection{Backtesting}
+	
+
+	\begin{figure}[h!]
+		\includegraphics[width=\linewidth]{img/trade_lg_inc_all.png}
+		\caption{Cumulative Profit over Time in QTR1 2019 (all \lstinline{lg_inc} vs. random trades)}
+		\label{fig:trade_lg_inc_all}
+	\end{figure}
+
+
+	\begin{figure}[h!]
+		\includegraphics[width=\linewidth]{img/trade_lg_inc_0.4.png}
+		\caption{Cumulative Profit over Time in QTR1 2019 (\lstinline{lg_inc} with $>0.4$ probability vs. random trades)}
+		\label{fig:trade_lg_inc_0.4}
+	\end{figure}
+
+	\begin{figure}[h!]
+		\includegraphics[width=\linewidth]{img/dist_pred_prob.png}
+		\caption{Distribution of Predicted Probabilities of Classified Classes}
+		\label{fig:dist_pred_prob}
+	\end{figure}
+
+
+	
+	\subsubsection{Interpretation}
+	
+	A word cloud with features weighted by feature importance is shown in figure ~\ref{fig:feat_imp}.
+	
+	\begin{figure}[h!]
+		\includegraphics[width=\linewidth]{img/feat_imp.png}
+		\caption{Word Cloud of Features Weighted by Feature Importance}
+		\label{fig:feat_imp}
+	\end{figure}
+	
+	
 	\section{Discussion}
 	
 	\section{Conclusion}
