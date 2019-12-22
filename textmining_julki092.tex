@@ -10,6 +10,8 @@
 \usepackage[margin=0.85in]{geometry}
 \usepackage[backend=bibtex,style=ieee]{biblatex}
 \usepackage{newunicodechar}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows}
 \newunicodechar{ﬁ}{fi}
 \addbibresource{textmining_julki092.bib}
 \newcommand{\HRule}[1]{\rule{\linewidth}{#1}}
@@ -35,7 +37,7 @@
 	
 	\begin{abstract}
 		
-	This text mining project makes use of filings from the U.S. Securities and Exchange Commission (SEC), in particular 8-K filings, to forecast short-term percentage changes in stock prices. 8-K filings have to be published by public companies in the U.S. for certain defined, business-relevant events. The forecasting problem is approached as a classification problem with five classes: large decrease, small decrease, no change, small increase and large increase (of the stock price before and after filing date of the 8-K filing). Instead of using existing data sets, a new, up-to-date data set is created, with data for the year 2018 and the first quarter of 2019. Furthermore, this project makes a contribution by comparing the previously successful methods for this problem: recurrent neural networks (RNNs) with word embeddings  and gradient boosting decision trees (GBDT) with bag-of-words. 
+	This text mining project makes use of filings from the U.S. Securities and Exchange Commission (SEC), in particular 8-K filings, to forecast short-term percentage changes in stock prices. 8-K filings have to be published by public companies in the U.S. for certain defined, business-relevant events. The forecasting problem is approached as a classification problem with five classes: large decrease, small decrease, no change, small increase and large increase (of the stock price before and after filing date of the 8-K filing). Instead of using existing data sets, a new, up-to-date data set is created, with data for the year 2018 and the first quarter of 2019. Furthermore, this project makes a contribution by comparing the previously successful methods for this problem: recurrent neural networks (LSTM) with GloVe word embeddings and gradient boosting decision trees (GBDT) with TF-IDF bag-of-words. Exclusively text data was used for training the models. The best model could achieve an additional 10 percent accuracy compared to the majority classifier, which matches with previous findings from the literature.
 	
 	\end{abstract}
 
@@ -246,7 +248,19 @@
 	
 	\subsection{Pre-Processing}
 	
-	Each raw 8-K filing, a text file containing HTML code, was processed as follows. First, graphics and embedded PDFs were removed and HTML tags were removed as well. Second, the resulting text data was tokenized with the natural language processing library spaCy, using the English language model \lstinline{en_core_web_sm}. Third, stop words, non-alphabetical tokens and tokens with only one character were removed. Fourth, the remaining tokens were lemmatized with spaCy. Fifth, the remaining tokens were all converted to lower case text.
+	\subsubsection{Text in General}
+	
+	The two approaches of pre-processing were used: one approach for CatBoost and the baseline classifiers (making use of the \lstinline{CountVectorizer} and the \lstinline{TfidfVectorizer} in sklearn) and another approach for the LSTM with GloVe.
+	
+	In the first approach, each raw 8-K filing, a text file containing HTML code, was processed as follows. First, graphics and embedded PDFs were removed and HTML tags were removed as well. Second, the resulting text data was tokenized with the natural language processing library spaCy, using the English language model \lstinline{en_core_web_sm}. Third, stop words, non-alphabetical tokens and tokens with only one character were removed. Fourth, the remaining tokens were lemmatized with spaCy. Fifth, the remaining tokens were all converted to lower case text.
+	
+	In the second approach, graphics and embedded PDFs were removed and HTML tags as well. Tokenization was done with \lstinline{text.split()} in Python. Furthermore, all digits were removed from the text. No lemmatization, removal of punctuation and lower casing were done since GloVe does not require these pre-processing steps.
+	
+	\subsubsection{Negation Encoding}
+	
+	For one experiment, words from negated parts of a sentence were encoded with a suffix \lstinline{_neg}. This was done by locating the strings not, 't, never, no, neither, nor, nobody, noone, nothing, nowhere, cannot in each sentence and adding said suffix to all words between such a string and the next punctuation (dot, comma, semicolon etc.). The negation encoding was only applied to the data processed according to the first approach described above.
+	
+	\subsubsection{Extraction of 8-K Events}
 	
 	The 8-K item events corresponding to each 8-K filing were extracted as well. This was done by searching all filing documents for all item identifiers. E.g. each document was searched for "Item 1.01", "Item 1.02", ..., "Item 9.01". Since these identifiers must occur in the titles of the 8-K filings that contain information about the respective events, they could be extracted by a simple search. 
 	
@@ -354,15 +368,11 @@
 	
 	The available data covers the complete year 2018 and the first quarter of 2019, i.e. five quarters in total. The four quarters of 2018 were used as training and validation data and the first quarter of 2019 was used as test data. The data for 2018 was split randomly into 80 percent training and 20 percent validation data. 
 	
-	The training data was used to train the models (with and without cross validation). In particular, cross validation with three folds based on the training data was used when doing grid search for hyperparameter optimization. For the baseline models, the full training data was used without cross validation. After training, all models were evaluated on the validation data. Based on the performance on the validation data, the best model was chosen. This model was then evaluated on the test data to obtain a generalization error and evaluate whether we could use the model in practice. 
-	
-	\subsection{Feature Pre-processing}
-	
-	%df_min, df_max%
+	The training data was used to train the models (with and without cross validation). In particular, cross validation with three folds based on the training data was used when doing grid search for hyperparameter optimization. The baseline models, were trained on the training data without cross validation. After training, all models were evaluated on the validation data. Based on the performance on the validation data, the best model was chosen. This model was then evaluated on the test data to obtain a generalization error and evaluate whether we could use the model in practice. 
 	
 	\subsection{Evaluation Metrics}
 	
-	For evaluating the results, confusion matrix, accuracy and class-wise precision are reported. Accuracy was used to determine the best model. When interpreting the performance of the best model on the test data, the focus was on class-wise precision, an important metric for considering potential trading strategies based on the model.
+	For evaluating the results, accuracy, as well as avg. precision, recall and f1-score are reported. Accuracy was used as main criterion to determine the best model. When interpreting the performance of the best model on the test data, the focus was on class-wise precision, an important metric for considering potential trading strategies based on the model.
 	
 	Class-wise precision is computed for each class individually. For a given class c, the class-wise precision is defined as the number of observations of class c that were classified as class c (TP for true positive), divided by the number of any observations that were classified as class c, regardless of whether they are of class c or not (TP + FP for the sum of all true positives and false positives).
 	
@@ -371,7 +381,6 @@
 	\end{align}
 	
 	Using precision as prioritized evaluation metric for the final model reflects the assumptions that a) we want to avoid loosing money in a trade and that b) missing out on a good trade is acceptable. To explain this, it is best to consider an example. Assume that we take a long position whenever the model classifies a large stock price increase (\verb|lg_inc|), i.e. we buy stocks expecting that their stock price will increase. If the stock price decreases instead, we would loose money. To avoid this loss, we ideally want that among all cases where the model classifies a large increase (FP + TP), the stock price actually increases (TP). This means that we care about the precision. 
-
 	
 	\subsection{Loss Function}
 	
@@ -388,7 +397,7 @@
 	where $i = 1, ..., N$ is the index for the observation, $j = 0, ..., M-1$ is the index of the class, $a_{i, j}$ is the model output for observation $i$ and class $j$, $w_i$ is the weight assigned for observation $i$ during training, and $t_i$ is the index of the true class of observation $i$ so that $a_{i, t_i}$ is the model output for the true class of observation $i$.
 	
 	Essentially, the term in the parentheses is the softmax function, which returns a value between 0 and 1 for each observation $i$ to belong to its true class $t_i$. If the model performs well for observation $i$, then the softmax value will be large. For instance, if the value is 1, this means that according to the model, we have a probability of 1 that observation $i$ is from class $t_i$, i.e. from the true class of the observation. In other words, the model would perfectly identify the true class of observation $i$. Since the log is taken, and since $log(1)=0$, the loss incurred for this perfectly classified observation will be 0. If the softmax value is smaller than 1, the loss for an observation will be negative and will hence affect the training process.
-		
+	
 	\subsubsection{LSTM}
 	
 	The loss function used for the LSTM is similar to the loss function from CatBoost. However, the observations $i$ are not weighted by any particular weights $w_i$. Essentially, a softmax function is used in the output layer so that the model directly outputs probabilities for each observation $i$ to belong to class $j$. Then, the loss function \lstinline{CategoricalCrossentropy} is used in \lstinline{TensorFlow} \cite{noauthor_module:_nodate}. For a multi-class problem, the categorical cross-entropy is defined as follows:
@@ -399,19 +408,40 @@
 	
 	where the notation is the same as in the loss function for GBDT. Note that in other notations this loss function usually has another sum over the classes along with an indicator function that is multiplied with the log (implying whether observation $i$ is from class $j$). However, here $a_{i, t_i}$ is defined as the model output for the true class of observation $i$ and hence the indicator function is not needed.
 	
-
-	% https://deepnotes.io/softmax-crossentropy
+	\subsection{Experiment Description}
+	
+	\subsubsection{Baseline}
+	
+	Four commonly used models were included as baseline models. The data was processed in the same way for all these models: the \lstinline{CountVectorizer} from sklearn was used. \lstinline{min_df} was set to 0.001 and \lstinline{max_df} was set to 0.9, i.e. only tokens that were is fewer than 90 percent of the documents and in more than 0.1 percent of the documents were included. These parameter values were identified during a grid search experiment with CatBoost and then used for the baseline models as well.
+	
+	In addition to the baseline models, the majority classifier and the random guess classifier were reported. Due to balanced classes, the values of these two classifiers were the same.
+	
+	\subsubsection{GBDT}
+	
+	Various experiments and parameter searches were performed with CatBoost. Due to long run-times, an exhaustive grid search was not possible. Therefore, a mixture of grid search, random search and simple comparisons on the validation data was used. Since experiments depended on each other, some results are reported here as well.
+	
+	First, a comparison between the \lstinline{CountVectorizer} and the \lstinline{TfidfVectorizer} was conducted on the validation data. Here, \lstinline{min_df} was set to a small number, 0.001, so that the vectorized data could fit in memory. CatBoost was used with default parameters. Since accuracy, as well as avg. precision and recall were better by 0.01 with the \lstinline{TfidfVectorizer}, only the \lstinline{TfidfVectorizer} was used in subsequent experiments.
+	
+	Second, a comparison between text data with and without negation encoding was conducted. The default CatBoost classifier with \lstinline{TfidfVectorizer} was evaluated on the validation data. Since adding the negation encoding decreased the accuracy, as well as avg. precision and recall by approx. 0.01, only the data without negation encoding was used in subsequent experiments.
+	
+	Third, a grid search for the \lstinline{TfidfVectorizer} parameters \lstinline{min_df} and \lstinline{max_df} was conducted with 3 fold cross validation on the training data. The values 0.001, 0.005, 0.01 and 0.85, 0.9, 0.95 were considered	respectively. The best parameters, 0.001 for \lstinline{min_df} and 0.9 for \lstinline{max_df} were used in subsequent experiments. Note that the chosen parameter value for \lstinline{min_df} was the smallest among the tested values. However, it was not decreased further due to memory limitations.
+	
+	Fourth, a (1 dimensional) grid search for n-grams was conducted and evaluated on the validation data. The result was compared with the result from the model after the third step. For testing n-grams, the size of the text data needed to reduced due to memory limitations. Only tokens with a feature importance $>0.01$ according to the CatBoost model from the third step were kept. Then, for the \lstinline{TfidfVectorizer} parameter \lstinline{ngram}, the following parameter values were tested: (3, 3), (2, 2), (1, 1), 
+	(1, 3), (1, 2). Since (1, 1) was found to be the best value, only unigrams were used in the subsequent experiment.
+	
+	Fifth, a random search (with 15 iterations) was done for the CatBoost parameters \lstinline{learning_rate} (0.015, 0.02, 0.025, 0.03, 0.035), \lstinline{depth} (5, 6, 7, 8, 9), and \lstinline{iterations} (750, 800, 850, 900, 950). The best model, with \lstinline{depth} of 8, 900 \lstinline{iterations} and \lstinline{learning_rate} of 0.03 performed as good as the model from the third step. Since CatBoost is known to perform very well with default parameters (parameter values are initialized appropriately based on the given data), the choice was made not to fix the three tested parameters. Instead, the default model remained the model of the choice.
+	
+	In summary, the final CatBoost model was a default CatBoost classifier, where the \lstinline{TfidfVectorizer} was used with parameters 0.001 for \lstinline{min_df} and 0.9 for \lstinline{max_df}. Only unigrams were used.
+	
+	\subsubsection{LSTM}
+	
+	Two LSTM models were trained and evaluated. Their architectures are visualized below. The difference between the two models is that in the first model, one dense layer is used after the LSTM layer, whereas in the second model, two tense layers are used. Due to long run-times for training, no parameter search was conducted.
+	
+	Both models used a trainable embedding layer that was initialized with GloVe word embeddings. The maximum number of words per sequence was set to 10K so that almost each document was fully used in the model (see figure ~\ref{fig:dist_num_tokens}). The word embedding dimension was set to 100 in order to obtain a good balance between efficiency and performance Furthermore, a drop-off of 0.5 was used in order to prevent overfitting.
 	
 
-%	$$P(y = c | \textbf{x}) = \frac{\exp{z_c}}{\sum_{k = 1}^K \exp{z_k}}$$
-	
-	 %$\textbf{x}$ is a feature vector for one observation, $c$ is its corresponding class index, $K$ is the total number of classes, and $z_c$ is a real number given as output by the model. For instance, with a linear model, we might have $z_c = \textbf{x}^T\textbf{w}_c + b_c$. Basically, the model output $z_c$ is normalized by the softmax function to get a value in the interval from 0 to 1. This value is then interpreted as probability that observation $\textbf{x}$ corresponds to class $c$. A classification for observation $\textbf{x}$ can be obtained by taking $\underset{c}{\mathrm{argmax}} \ P(y = c | \textbf{x})$.
-	
-	
-	\subsection{Hyperparameter Tuning}
-	
-	
-	\subsubsection{Interpretation of Best Model}
+
+	\subsection{Best Model Evaluation}
 	
 	Visualization, Backtesting
 	
@@ -433,10 +463,10 @@
 			Majority Class &    0.20 &  0.20 &   0.20 &   0.20 \\
 			Naive Bayes       &   0.25 & 0.25 &  0.25 &  0.21 \\
 			SVM      &   0.25 & 0.25 &  0.25 &  0.24 \\
+			LSTM+1FNN  &   0.25 & 0.25 &  0.25 &  0.24 \\
 			Random Forrest      &  0.29 & 0.29 & 0.29 &  0.29 \\
 			Logistic Regression   &  0.29 & 0.29 &  0.29 &  0.29 \\
-			Catboost (Default)   &  0.31 & 0.30 &  0.31 & 0.29 \\
-			Catboost (Grid Search)   &  41763.0 & -0.9386 &  4.9105 &  0.0012 \\
+			Catboost (Final)   &  0.31 & 0.30 &  0.31 & 0.29 \\
 			\bottomrule
 		\end{tabular}
 		
@@ -457,10 +487,10 @@
 			Majority Class &    0.20 &  0.20 &   0.20 &   0.20 \\
 			Naive Bayes       &   0.25 & 0.25 &  0.25 &  0.21 \\
 			SVM      &   0.25 & 0.25 &  0.25 &  0.24 \\
+			LSTM+1FNN  &   0.25 & 0.25 &  0.25 &  0.24 \\
 			Random Forrest      &  0.29 & 0.29 & 0.29 &  0.29 \\
 			Logistic Regression   &  0.29 & 0.29 &  0.29 &  0.29 \\
 			Catboost (Default)   &  0.31 & 0.30 &  0.31 & 0.29 \\
-			Catboost (Grid Search)   &  41763.0 & -0.9386 &  4.9105 &  0.0012 \\
 			\bottomrule
 		\end{tabular}
 		
