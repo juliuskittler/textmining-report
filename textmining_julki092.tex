@@ -37,7 +37,7 @@
 	
 	\begin{abstract}
 		
-	This text mining project makes use of filings from the U.S. Securities and Exchange Commission (SEC), in particular 8-K filings, to forecast short-term percentage changes in stock prices. 8-K filings have to be published by public companies in the U.S. for certain defined, business-relevant events. The forecasting problem is approached as a classification problem with five classes: large decrease, small decrease, no change, small increase and large increase (of the stock price before and after filing date of the 8-K filing). Instead of using existing data sets, a new, up-to-date data set is created, with data for the year 2018 and the first quarter of 2019. Furthermore, this project makes a contribution by testing a new approach to this problem: gradient boosting decision trees (GBDT) with tf-idf bag-of-words. Previous research had found random forests to perform very well on this problem. Hence, the methodological choice for this project fell on GBDT as a more advanced ensemble model. Exclusively text data was used for training the models. The best model could achieve an additional 10 percent accuracy compared to the majority classifier, which matches with previous findings from the literature.
+	This text mining project makes use of filings from the U.S. Securities and Exchange Commission (SEC), in particular 8-K filings, to forecast short-term percentage changes in stock prices. 8-K filings have to be published by public companies in the U.S. for certain defined, business-relevant events. The forecasting problem is approached as a classification problem with five classes: large decrease, small decrease, no change, small increase and large increase (of the stock price before and after filing date of the 8-K filing). Instead of using existing data sets, a new, up-to-date data set is created, with data for the year 2018 and the first quarter of 2019. Furthermore, this project makes a contribution by testing a new approach to this problem: gradient boosting decision trees (GBDT) with tf-idf bag-of-words. Previous research had found random forests to perform very well on this problem. Hence, the methodological choice for this project fell on GBDT as a more advanced ensemble model. Exclusively text data was used for training the models. The best model could achieve an additional 10\% accuracy compared to the majority classifier, which matches with previous findings from the literature.
 	
 	\end{abstract}
 
@@ -118,31 +118,11 @@
 	
 	This section gives a short overview of previous work about forecasting stock prices with 8-K filings. Since the focus of this project is classification, this literature review also focuses on previous work with classification. There are few public research papers that made use of 8-K filings for stock price forecasts. However, the papers that are publicly available show promising results. 
 	
-	For instance, Lee et al. could achieve an increase in accuracy by 10 percent when including text data from 8-K filings into a baseline model that only used financial metrics \cite{lee_importance_2014}. This study was solving a classification task with three classes: price increase ($> 1\%$), price decrease ($< -1\%$) or no relevant change ($< |1 \%|$). Compared to a random classification with 33 percent accuracy and a majority-class classification of 35 percent accuracy, the best model of the study could achieve a 55 percent accuracy on the test data. The main model used for this study was a random forest classifier, which outperformed other models such as multi layer perceptron and logistic regression. Unigram features of the text data were used along with non-negative matrix factorization for dimensionality reduction.
+	For instance, Lee et al. could achieve an increase in accuracy by 10\% when including text data from 8-K filings into a baseline model that only used financial metrics \cite{lee_importance_2014}. This study was solving a classification task with three classes: price increase ($> 1\%$), price decrease ($< -1\%$) or no relevant change ($< |1 \%|$). Compared to a random classification with 33\% accuracy and a majority-class classification of 35\% accuracy, the best model of the study could achieve a 55\% accuracy on the test data. The main model used for this study was a random forest classifier, which outperformed other models such as multi layer perceptron and logistic regression. Unigram features of the text data were used along with non-negative matrix factorization for dimensionality reduction.
 	
-	Another study by Saleh et al. extended the research by Lee et al. \cite{saleh_neural_nodate}. In addition to the data from the 8-K filings, the researchers used text data from Twitter. Furthermore, they used convolutional neural networks (CNNs) and recurrent neural networks (RNNs) instead of random forests. Again,  a random classification was equivalent to 33 percent accuracy. Compared to a majority-class classification of 42 percent without twitter data and 49 percent with twitter data, best test accuracies were 51 percent and 53 percent respectively. Instead of unigram features, word embeddings from GloVe were used.
+	Another study by Saleh et al. extended the research by Lee et al. \cite{saleh_neural_nodate}. In addition to the data from the 8-K filings, the researchers used text data from Twitter. Furthermore, they used convolutional neural networks (CNNs) and recurrent neural networks (RNNs) instead of random forests. Again,  a random classification was equivalent to 33\% accuracy. Compared to a majority-class classification of 42\% without twitter data and 49\% with twitter data, best test accuracies were 51\% and 53\% respectively. Instead of unigram features, word embeddings from GloVe were used.
 	
-	Holowczak et al. compared the performance of various common algorithms (random forest, naive bayes, support vector machine, k-nearest neighbor and ridge classifier) on a binay classification task (price increase vs. decrease) \cite{holowczak_testing_2019}. However, only 8-K filings for a particular event, item 4.01, were used. The best results were achieved with a linear support vector classifier with a classification accuracy of 54.4 percent on the test data. The text data had been transformed with frequency-inverse document frequency (tf-id) vectorization.
-	
-	%Sakarwala et al. also conducted a binary classification  (price increase vs. decrease) \cite{sakarwala_use_2019}. The best result with an accuracy of 68 percent was obtained with CNNs and RNNs. Again, word embeddings from GloVe were used.%
-	
-
-
-	%Other research papers investigate different aspects of 8-K filings instead of using them for stock price forecasts. For instance, there is research for predicting content in 8-K filings based on their text \cite{lee_predicting_2008} and for understanding the relation of 8-K filings and analysts' information \cite{gleason_selective_nodate}.%
-	
-	%Decision support from financial disclosures with deep neural networks and transfer learning --> exclude because they did not do classification.%
-	
-	%Predicting Stock Returns by Automatically Analyzing Company News Announcements --> exclude because of only few items and seemingly focus on topic modeling rather than classification%
-	
-	%https://medium.com/@babbemark/bert-is-the-word-predicting-stock-prices-with-language-models-8d5205b8537c --> exclude because unprofessional%
-	
-	
-	%subsection{Stock Price Forecasting with Text Data}%
-	%Content of Annual Reports as a Predictor for Long Term Stock Price Movements%
-	
-	%\subsection{Stock Price Forecasting in General}%
-	%Stock Market Analysis: A Review and Taxonomy of Prediction Techniques%
-
+	Holowczak et al. compared the performance of various common algorithms (random forest, naive bayes, support vector machine, k-nearest neighbor and ridge classifier) on a binay classification task (price increase vs. decrease) \cite{holowczak_testing_2019}. However, only 8-K filings for a particular event, item 4.01, were used. The best results were achieved with a linear support vector classifier with a classification accuracy of 54.4\% on the test data. The text data had been transformed with frequency-inverse document frequency (tf-id) vectorization.
 
 	\subsection{Research Questions}
 	
@@ -235,7 +215,7 @@
 		\item \textbf{Filtering out missing stock prices:} All 8-K filings, for which no stock price data was available from Tiingo were removed from the list. The resulting shortlist contained a total of 45262 8-K filings. After further removing 8-K filings that had a stock price split before, on or after the day of the filing date, the shortlist contained 42087  8-K filings.
 		\item \textbf{Adding stock prices by ticker symbol:} For the remaining 8-K filings, the stock price data was extracted from the Tiingo data, making use of the filing date from EDGAR. For each filing, the percentage change from the closing price of the day before the filing date and the open price of the day after the filing date was computed as target variable.
 		\item \textbf{Downloading 8-K filings:} All 8-K filings from the shortlist were successfully downloaded from EDGAR as text documents with HTML format.
-		\item \textbf{Filtering out during pre-processing:} When processing the data (see below) 8-K filings with more than 1 Mio. characters were removed due to file size limitations of the libraries that were used for processing. Furthermore, two outliers with a percentage change of approx. $2900$ percent were removed. This left a total of 41763 SEC filings for the project.
+		\item \textbf{Filtering out during pre-processing:} When processing the data (see below) 8-K filings with more than 1 Mio. characters were removed due to file size limitations of the libraries that were used for processing. Furthermore, two outliers with a percentage change of approx. $2900$\% were removed. This left a total of 41763 SEC filings for the project.
 
 		
 	\end{enumerate}
@@ -265,9 +245,9 @@
 	
 	For each 8-K filing, the target variable is computed as the percentage change from the closing price of the day before the filing date to the opening price of the day after the filing date. Only Monday-Friday are considered, i.e. when the filing date is a Monday, then the closing price from the Friday before is used (instead of Sunday). This is because the stock market is only open during the workweek.
 	
-	The percentage changes are normalized with the S\&P 500, a stock price index based on the 500 largest companies in the U.S. The normalization was done by subtracting the S\&P 500 percentage change from the stock price percentage change. For example, when the percentage change of the stock price corresponding to an 8-K filing was +5 percent and when the percentage change of the S\&P 500 in the same period was +3 percent, then the normalized percentage change is +2 percent.
+	The percentage changes are normalized with the S\&P 500, a stock price index based on the 500 largest companies in the U.S. The normalization was done by subtracting the S\&P 500 percentage change from the stock price percentage change. For example, when the percentage change of the stock price corresponding to an 8-K filing was +5\% and when the percentage change of the S\&P 500 in the same period was +3\%, then the normalized percentage change is +2\%.
 	
-	Table ~\ref{table:stats_by_data} shows descriptive statistics for the percentage changes before discretization (for all data and for training, test and validation set separately, which will be elaborated on in the methods section). The corresponding distribution is visualized in figure ~\ref{fig:dist_target_nondisc}. Note that visually, the distributions for training, test and validation set seem very similar, and hence the distribution was only plotted for the overall data. Approx. 50 percent of the percentage changes are between $-1.6$ percent and $+1.6$ percent, centered at $0$. The distributions differ slightly in their maximum values because the total number of data points with large percentage changes is relatively small.
+	Table ~\ref{table:stats_by_data} shows descriptive statistics for the percentage changes before discretization (for all data and for training, test and validation set separately, which will be elaborated on in the methods section). The corresponding distribution is visualized in figure ~\ref{fig:dist_target_nondisc}. Note that visually, the distributions for training, test and validation set seem very similar, and hence the distribution was only plotted for the overall data. Approx. 50\% of the percentage changes are between $-1.6$\% and $+1.6$\%, centered at $0$. The distributions differ slightly in their maximum values because the total number of data points with large percentage changes is relatively small.
 
 	
 	\begin{table}[h!]
@@ -299,7 +279,7 @@
 		
 	The normalized percentage changes were discretized into five bins of equal size, representing the five classes that are to be predicted in this project. Discretization into bins of equal size was used as discretization method to ensure balanced classes without having to over or undersample. Five bins were chosen to be able to distinguish between large, small and irrelevant percentage changes. The five classes correspond to large percentage decrease (\lstinline{lg_dec}), small percentage decrease (\lstinline{sm_dec}), no relevant change (\lstinline{same}), small percentage increase (\lstinline{sm_inc}) and large percentage increase (\lstinline{lg_inc}).
 	
-	Table ~\ref{table:stats_by_target} shows descriptive statistics for the percentage changes after discretization. This table basically illustrates what the classes used in this project actually represent. For instance, the class  \lstinline{lg_dec} represents any percentage change in the interval $[-0.9386, -0.0217]$. Here, $-0.9386$ represents $-93.86$ percent. Figure ~\ref{table:stats_by_target} shows the number of observations by training, validation and test data. The classes are very balanced, i.e. they occur similarly often, in the overall data as well as across the different data sets.
+	Table ~\ref{table:stats_by_target} shows descriptive statistics for the percentage changes after discretization. This table basically illustrates what the classes used in this project actually represent. For instance, the class  \lstinline{lg_dec} represents any percentage change in the interval $[-0.9386, -0.0217]$. Here, $-0.9386$ represents $-93.86$\%. Figure ~\ref{table:stats_by_target} shows the number of observations by training, validation and test data. The classes are very balanced, i.e. they occur similarly often, in the overall data as well as across the different data sets.
 	
 	\begin{table}[h!]
 		\centering
@@ -360,13 +340,13 @@
 	
 	\subsection{Training, Validation, Testing}
 	
-	The available data covers the complete year 2018 and the first quarter of 2019, i.e. five quarters in total. The four quarters of 2018 were used as training and validation data and the first quarter of 2019 was used as test data. The data for 2018 was split randomly into 80 percent training and 20 percent validation data. 
+	The available data covers the complete year 2018 and the first quarter of 2019, i.e. five quarters in total. The four quarters of 2018 were used as training and validation data and the first quarter of 2019 was used as test data. The data for 2018 was split randomly into 80\% training and 20\% validation data. 
 	
 	The training data was used to train the models (with and without cross validation). In particular, cross validation with three folds based on the training data was used when doing grid search for hyperparameter optimization. The baseline models, were trained on the training data without cross validation. After training, all models were evaluated on the validation data. Based on the performance on the validation data, the best model was chosen. This model was then evaluated on the test data to obtain a generalization error and evaluate whether we could use the model in practice. 
 	
 	\subsection{Evaluation Metrics}
 	
-	For evaluating the results, accuracy, as well as avg. precision, recall and f1-score are reported. Accuracy was used as main criterion to determine the best model. When interpreting the performance of the best model on the test data, the focus was on class-wise precision, an important metric for considering potential trading strategies based on the model.
+	For evaluating the results, accuracy, as well as avg. precision, recall and f1-score are reported. Accuracy was used as main criterion to determine the best model. When interpreting the performance of the best model on the test data, the focus was on the confusion matrix and on class-wise precision, an important metric for considering potential trading strategies based on the model.
 	
 	Class-wise precision is computed for each class individually. For a given class c, the class-wise precision is defined as the number of observations of class c that were classified as class c (TP for true positive), divided by the number of any observations that were classified as class c, regardless of whether they are of class c or not (TP + FP for the sum of all true positives and false positives).
 	
@@ -392,33 +372,41 @@
 	
 	\subsubsection{Baseline}
 	
-	Four commonly used models were included as baseline models. The data was processed in the same way for all these models: the \lstinline{CountVectorizer} from sklearn was used. \lstinline{min_df} was set to 0.001 and \lstinline{max_df} was set to 0.9, i.e. only tokens that were is fewer than 90 percent of the documents and in more than 0.1 percent of the documents were included. These parameter values were identified during a grid search experiment with CatBoost and then used for the baseline models as well.
+	Four commonly used models were included as baseline models. The data was processed in the same way for all these models: the \lstinline{CountVectorizer} from sklearn was used. \lstinline{min_df} was set to 0.001 and \lstinline{max_df} was set to 0.9, i.e. only tokens that were is fewer than 90\% of the documents and in more than 0.1\% of the documents were included. These parameter values were identified during a grid search experiment with CatBoost and then used for the baseline models as well.
 	
 	In addition to the baseline models, the majority classifier and the random guess classifier were reported. Due to balanced classes, the values of these two classifiers were the same.
 	
 	\subsubsection{GBDT}
 	
-	Various experiments and parameter searches were performed with CatBoost. Due to long run-times, an exhaustive grid search was not possible. Therefore, a mixture of grid search, random search and simple comparisons on the validation data was used. Since experiments depended on each other, some results are reported here as well.
+	Various experiments and parameter searches were performed with CatBoost. Due to long run-times, an exhaustive grid search was not possible. Therefore, a mixture of simple comparisons, grid search, and random search was used. Since experiments depended on each other, some results are reported here as well. Only the final model was evaluated on the validation data. For training and parameter tuning only the training data was used, with a simple percentage split (for step 1-2) and with 3-fold cross validation (for step 3-4).
 	
-	First, a comparison between the \lstinline{CountVectorizer} and the \lstinline{TfidfVectorizer} was conducted on the validation data. Here, \lstinline{min_df} was set to a small number, 0.001, so that the vectorized data could fit in memory. CatBoost was used with default parameters. Since accuracy, as well as avg. precision and recall were better by 0.01 with the \lstinline{TfidfVectorizer}, only the \lstinline{TfidfVectorizer} was used in subsequent experiments.
 	
-	Second, a comparison between text data with and without negation encoding was conducted. The default CatBoost classifier with \lstinline{TfidfVectorizer} was evaluated on the validation data. Since adding the negation encoding decreased the accuracy, as well as avg. precision and recall by approx. 0.01, only the data without negation encoding was used in subsequent experiments.
+	\begin{enumerate}
+		\item 	A comparison between the \textbf{\lstinline{CountVectorizer} and the \lstinline{TfidfVectorizer}} was conducted (with 67\% of the training data for training and 33\% of the training data for validation). \lstinline{min_df} was set to a small number, 0.001, so that the vectorized data could fit in memory. CatBoost was used with default parameters. Since accuracy, as well as avg. precision and recall were better by 0.01 with the \lstinline{TfidfVectorizer}, only the \lstinline{TfidfVectorizer} was used in subsequent experiments.
+		\item 	A comparison between text data \textbf{with and without negation encoding} was conducted (with 67\% of the training data for training and 33\% of the training data for validation). The default CatBoost classifier with \lstinline{TfidfVectorizer} was used. Since adding the negation encoding changed the evaluation metrics by only $<0.01$, the data without negation encoding was used in subsequent experiments for simplicity.
+		\item 	A grid search for the \lstinline{TfidfVectorizer} parameters \textbf{\lstinline{min_df} and \lstinline{max_df}} was conducted. The values 0.001, 0.005, 0.01 and 0.85, 0.9, 0.95 were considered	respectively. The best parameters, 0.001 for \lstinline{min_df} and 0.9 for \lstinline{max_df} were used in subsequent experiments. Note that the chosen parameter value for \lstinline{min_df} was the smallest among the tested values. However, it was not decreased further due to memory limitations.
+		\item 	A (1 dimensional) grid search for \textbf{n-grams} was conducted. For testing n-grams, the size of the text data needed to reduced due to memory limitations. Only tokens with a feature importance $>0.01$ according to the CatBoost model from the third step were kept. Then, for the \lstinline{TfidfVectorizer} parameter \lstinline{ngram}, the following parameter values were tested: (3, 3), (2, 2), (1, 1), (1, 3), (1, 2). Since (1, 1) was found to be the best value, only unigrams were used in the subsequent experiment. For simplicity, no feature removal was done anymore for the subsequent experiments.
+		\item 	A random search (with 15 iterations) was done for the \textbf{CatBoost hyperparameters} \lstinline{learning_rate} (0.015, 0.02, 0.025, 0.03, 0.035), \lstinline{depth} (5, 6, 7, 8, 9), and \lstinline{iterations} (750, 800, 850, 900, 950). The best parameters were a \lstinline{depth} of 8, a number of \lstinline{iterations} of 900 and a \lstinline{learning_rate} of 0.03.
+	\end{enumerate}
 	
-	Third, a grid search for the \lstinline{TfidfVectorizer} parameters \lstinline{min_df} and \lstinline{max_df} was conducted with 3 fold cross validation on the training data. The values 0.001, 0.005, 0.01 and 0.85, 0.9, 0.95 were considered	respectively. The best parameters, 0.001 for \lstinline{min_df} and 0.9 for \lstinline{max_df} were used in subsequent experiments. Note that the chosen parameter value for \lstinline{min_df} was the smallest among the tested values. However, it was not decreased further due to memory limitations.
-	
-	Fourth, a (1 dimensional) grid search for n-grams was conducted and evaluated on the validation data. The result was compared with the result from the model after the third step. For testing n-grams, the size of the text data needed to reduced due to memory limitations. Only tokens with a feature importance $>0.01$ according to the CatBoost model from the third step were kept. Then, for the \lstinline{TfidfVectorizer} parameter \lstinline{ngram}, the following parameter values were tested: (3, 3), (2, 2), (1, 1), 
-	(1, 3), (1, 2). Since (1, 1) was found to be the best value, only unigrams were used in the subsequent experiment.
-	
-	Fifth, a random search (with 15 iterations) was done for the CatBoost parameters \lstinline{learning_rate} (0.015, 0.02, 0.025, 0.03, 0.035), \lstinline{depth} (5, 6, 7, 8, 9), and \lstinline{iterations} (750, 800, 850, 900, 950). The best model, with \lstinline{depth} of 8, 900 \lstinline{iterations} and \lstinline{learning_rate} of 0.03 performed as good as the model from the third step. Since CatBoost is known to perform very well with default parameters (parameter values are initialized appropriately based on the given data), the choice was made not to fix the three tested parameters. Instead, the default model remained the model of the choice.
-	
-	In summary, the final CatBoost model was a default CatBoost classifier, where the \lstinline{TfidfVectorizer} was used with parameters 0.001 for \lstinline{min_df} and 0.9 for \lstinline{max_df}. Only unigrams were used.
+	In summary, the final CatBoost model was a CatBoost classifier with \lstinline{depth} of 8, 900 \lstinline{iterations} and a \lstinline{learning_rate} of 0.03. The \lstinline{TfidfVectorizer} was used with parameters 0.001 for \lstinline{min_df} and 0.9 for \lstinline{max_df}. Only unigrams were used.
 	
 
 	\subsection{Best Model Evaluation}
 	
-	Visualization, Backtesting
+	In addition to class-wise precision and the confusion matrix, a backtesting with simplified assumptions was conducted for QTR1 2019 to evaluate the final model. The backtesting was done with the following simplifying assumptions. Note that the max. loss of 1 trade reflects a stop-loss, i.e. we would sell when the price stock is down 5\%, taking a loss. The max. percentage change realized in case of increase is only set to 50\% because parts of the price increase might happen before we might enter a trade (in pre- or after-market hours).
 	
-	In addition to reporting the evaluation metrics numerically, they are also visualized by certain categorical variables (e.g. industry of the company, event of the 8-K filings, location of the company) in order to identify issues as well as future potentials of the models. 
+	\begin{enumerate}
+		\item 	Amount of money placed on each trade: \$2K
+		\item 	Cash in portfolio: enough to place any trade
+		\item 	Commission per trade: \$0
+		\item 	Percentage of tickers that are tradable: 100\%
+		\item 	Percentage of trades that are executed fully: 100\%
+		\item 	Max. loss of per trade: 5\% (i.e. \$100)
+		\item 	Max. percentage change realized in case of increase: 50\%
+	\end{enumerate}
+	
+	The backtesting was conducted in two variations. First, a trade was placed whenever the model classified \lstinline{lg_inc}. Second, a trade was placed whenever the model classified \lstinline{lg_inc} with a probability larger than 40\%.
 	
 	\section{Results}
 	
@@ -441,7 +429,7 @@
 			SVM      &  0.43 & 0.44 & 0.43 &  0.42 \\
 			Random Forrest      &  0.98 & 0.98 & 0.98 &  0.98 \\
 			Logistic Regression   &  0.42 & 0.43 & 0.42 &  0.42 \\
-			Catboost (Final)   &  0.51 & 0.52 &  0.51 & 0.51 \\
+			Catboost (Final)   &  0.62 & 0.63 &  0.62 & 0.62 \\
 			\bottomrule
 		\end{tabular}
 		
@@ -462,11 +450,13 @@
 			SVM      &  0.26 & 0.26 & 0.26 & 0.25 \\
 			Random Forrest      &  0.28 & 0.27 & 0.28 & 0.27 \\
 			Logistic Regression   &  0.29 & 0.29 &  0.29 &  0.28 \\
-			Catboost (Final)   &  0.30 & 0.30 &  0.30 & 0.30 \\
+			Catboost (Final)   &  0.31 & 0.30 &  0.31 & 0.30 \\
 			\bottomrule
 		\end{tabular}
 		
 	\end{table}%	
+
+	The best model was the CatBoost classifier.
 
 	\subsection{Best Model}
 	
@@ -512,47 +502,35 @@
 	
 	\end{table}%
 
-
-
  	Figure ~\ref{fig:class_by_lg_dec} shows the number of true classes among all observations that were classified as \lstinline{lg_inc} by 8-K event. E.g. approx. 570 of the 9.01 events classified as \lstinline{lg_inc} had the true class \lstinline{lg_inc} but approx. 440 of the 9.01 events classified as \lstinline{lg_inc} had the true class \lstinline{lg_dec}.
 
 	\begin{figure}[h!]
 		\includegraphics[width=\linewidth]{img/class_by_lg_dec.png}
-		\caption{Number of True Classes among 8-K Filings Classified as \lstinline{lg_inc}}
+		\caption{Number of true classes among 8-K filings classified as \lstinline{lg_inc} by 8-K event}
 		\label{fig:class_by_lg_dec}
 	\end{figure}
 
 	\subsubsection{Backtesting}
 
-	The backtesting was done with the following simplifying assumptions:
-	
-	\begin{enumerate}
-		\item 	Amount of money placed on each trade: \$2K
-		\item 	Cash in portfolio: enough to place any trade
-		\item 	Commission per trade: 0 USD
-		\item 	Percentage of tickers that are tradable: 100\%
-		\item 	Percentage of trades that are executed fully: 100\%
-		\item 	Max. loss of 1 trade: 5\% (i.e. \$100)
-		\item 	Max. percentage change realized in case of increase: 50\%
-	\end{enumerate}
+
 
 
 	\begin{figure}[h!]
 		\includegraphics[width=\linewidth]{img/trade_lg_inc_all.png}
-		\caption{Cumulative Profit over Time in QTR1 2019 (all \lstinline{lg_inc} vs. random trades)}
+		\caption{Cumulative profit over time in QTR1 2019 (all \lstinline{lg_inc} vs. random trades)}
 		\label{fig:trade_lg_inc_all}
 	\end{figure}
 
 
 	\begin{figure}[h!]
-		\includegraphics[width=\linewidth]{img/trade_lg_inc_0.4.png}
-		\caption{Cumulative Profit over Time in QTR1 2019 (\lstinline{lg_inc} with $>0.4$ probability vs. random trades)}
+		\includegraphics[width=\linewidth]{img/trade_lg_inc_40.png}
+		\caption{Cumulative profit over time in QTR1 2019 (\lstinline{lg_inc} with $>0.4$ probability vs. random trades)}
 		\label{fig:trade_lg_inc_0.4}
 	\end{figure}
 
 	\begin{figure}[h!]
 		\includegraphics[width=\linewidth]{img/dist_pred_prob.png}
-		\caption{Distribution of Predicted Probabilities of Classified Classes}
+		\caption{Distribution of predicted probabilities of classified classes}
 		\label{fig:dist_pred_prob}
 	\end{figure}
 
@@ -564,7 +542,7 @@
 	
 	\begin{figure}[h!]
 		\includegraphics[width=\linewidth]{img/feat_imp.png}
-		\caption{Word Cloud of Features Weighted by Feature Importance}
+		\caption{Word cloud of features weighted by feature importance}
 		\label{fig:feat_imp}
 	\end{figure}
 	
@@ -573,7 +551,7 @@
 	
 	\section{Conclusion}
 	
-	\section{References}
 	
+\clearpage
 \printbibliography
 \end{document}
