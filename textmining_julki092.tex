@@ -472,10 +472,70 @@
 	
 	\subsubsection{Evaluation Metrics}
 
-	The performance of the final model on the test data from QTR1 2019 is displayed in table  REFERENCE. The corresponding confusion matrix is shown in table REFERENCE and the class-wise precision is shown in table REFERENCE. Recall that the final model is the default CatBoost classifier with tf-idf vectorization using 0.001 for \lstinline{min_df} and 0.9 for \lstinline{max_df}.
+	The performance of the final model on the test data from QTR1 2019 is displayed in table ~\ref{table:results_test}. The corresponding confusion matrix with class-wise precision is shown in table ~\ref{table:best_model_cm_abs}. Recall that the final model is the default CatBoost classifier with tf-idf vectorization using 0.001 for \lstinline{min_df} and 0.9 for \lstinline{max_df}.
+
+	\begin{table}[h!]
+	\centering
+	\caption{Classifier performance on the test data}
+	\label{table:results_test}
 	
+	\begin{tabular}{lrrrrrrrr}
+		\toprule
+		Model &     accuracy &     precision &     recall &    f1 \\
+		\midrule
+		Catboost (Final)   &  0.30 &  0.29 &   0.30 &  0.29 \\
+		\bottomrule
+	\end{tabular}
+	
+	\end{table}%
+
+
+	\begin{table}[h!]
+	\centering
+	\caption{Confusion matrix of best model evaluated on test data}
+	\label{table:best_model_cm_abs}
+	
+	\begin{tabular}{llrrrrr}
+		\toprule
+		&        & \multicolumn{5}{l}{Predicted} \\
+		&        &    lg\_dec & sm\_dec & same & sm\_inc & lg\_inc \\
+		\midrule
+		True & lg\_dec &  487 &    231 &  242 &    241 &    439 \\
+		& sm\_dec &       216 &    279 &  576 &    310 &    202 \\
+		& same &          126 &    260 &  737 &    348 &    164 \\
+		& sm\_inc &       184 &    249 &  545 &    318 &    228 \\
+		& lg\_inc &       422 &    198 &  203 &    200 &    570 \\
+		\bottomrule
+		Precision &  &    0.34 &  0.23 &  0.32 &   0.22 &    0.36 \\
+		\bottomrule
+	\end{tabular}
+	
+	\end{table}%
+
+
+
+ 	Figure ~\ref{fig:class_by_lg_dec} shows the number of true classes among all observations that were classified as \lstinline{lg_inc} by 8-K event. E.g. approx. 570 of the 9.01 events classified as \lstinline{lg_inc} had the true class \lstinline{lg_inc} but approx. 440 of the 9.01 events classified as \lstinline{lg_inc} had the true class \lstinline{lg_dec}.
+
+	\begin{figure}[h!]
+		\includegraphics[width=\linewidth]{img/class_by_lg_dec.png}
+		\caption{Number of True Classes among 8-K Filings Classified as \lstinline{lg_inc}}
+		\label{fig:class_by_lg_dec}
+	\end{figure}
+
 	\subsubsection{Backtesting}
+
+	The backtesting was done with the following simplifying assumptions:
 	
+	\begin{enumerate}
+		\item 	Amount of money placed on each trade: \$2K
+		\item 	Cash in portfolio: enough to place any trade
+		\item 	Commission per trade: 0 USD
+		\item 	Percentage of tickers that are tradable: 100\%
+		\item 	Percentage of trades that are executed fully: 100\%
+		\item 	Max. loss of 1 trade: 5\% (i.e. \$100)
+		\item 	Max. percentage change realized in case of increase: 50\%
+	\end{enumerate}
+
 
 	\begin{figure}[h!]
 		\includegraphics[width=\linewidth]{img/trade_lg_inc_all.png}
