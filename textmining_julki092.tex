@@ -394,7 +394,7 @@
 
 	\subsection{Best Model Evaluation}
 	
-	In addition to class-wise precision and the confusion matrix, a backtesting with simplified assumptions was conducted for QTR1 2019 to evaluate the final model. The backtesting was done with the following simplifying assumptions. Note that the max. loss of 1 trade reflects a stop-loss, i.e. we would sell when the price stock is down 5\%, taking a loss. The max. percentage change realized in case of increase is only set to 50\% because parts of the price increase might happen before we might enter a trade (in pre- or after-market hours).
+	In addition to class-wise precision and the confusion matrix, a backtesting with simplified assumptions was conducted for QTR1 2019 to evaluate the final model. The backtesting was done with the following simplifying assumptions. Note that the max. loss per trade reflects a stop-loss, i.e. we would sell when reaching a 5\% loss on a specific trade. The max. percentage change realized in case of profit is only set to 50\% because parts of the price increase might happen before we might enter a trade (in pre- or after-market hours).
 	
 	\begin{enumerate}
 		\item 	Amount of money placed on each trade: \$2K
@@ -403,7 +403,7 @@
 		\item 	Percentage of tickers that are tradable: 100\%
 		\item 	Percentage of trades that are executed fully: 100\%
 		\item 	Max. loss of per trade: 5\% (i.e. \$100)
-		\item 	Max. percentage change realized in case of increase: 50\%
+		\item 	Max. percentage change realized in case of profit: 50\%
 	\end{enumerate}
 	
 	The backtesting was conducted in two variations. First, a trade was placed whenever the model classified \lstinline{lg_inc}. Second, a trade was placed whenever the model classified \lstinline{lg_inc} with a probability larger than 40\%.
@@ -473,7 +473,7 @@
 		\toprule
 		Model &     accuracy &     precision &     recall &    f1 \\
 		\midrule
-		Catboost (Final)   &  0.30 &  0.29 &   0.30 &  0.29 \\
+		Catboost (Final)   &  0.30 &  0.30 &   0.30 &  0.30 \\
 		\bottomrule
 	\end{tabular}
 	
@@ -490,16 +490,16 @@
 		&        & \multicolumn{5}{l}{Predicted} \\
 		&        &    lg\_dec & sm\_dec & same & sm\_inc & lg\_inc \\
 		\midrule
-		True & lg\_dec &  487 &    231 &  242 &    241 &    439 \\
-		& sm\_dec &       216 &    279 &  576 &    310 &    202 \\
-		& same &          126 &    260 &  737 &    348 &    164 \\
-		& sm\_inc &       184 &    249 &  545 &    318 &    228 \\
-		& lg\_inc &       422 &    198 &  203 &    200 &    570 \\
-		\bottomrule
+		True & lg\_dec &       496 &    248 &  235 &    226 &    435 \\
+		& sm\_dec &       200 &    281 &  542 &    340 &    220 \\
+		& same &       136 &    293 &  688 &    357 &    161 \\
+		& sm\_inc &       200 &    258 &  513 &    335 &    218 \\
+		& lg\_inc &       409 &    187 &  204 &    200 &    593 \\
+\bottomrule
 		Precision &  &    0.34 &  0.23 &  0.32 &   0.22 &    0.36 \\
 		\bottomrule
 	\end{tabular}
-	
+
 	\end{table}%
 
  	Figure ~\ref{fig:class_by_lg_dec} shows the number of true classes among all observations that were classified as \lstinline{lg_inc} by 8-K event. E.g. approx. 570 of the 9.01 events classified as \lstinline{lg_inc} had the true class \lstinline{lg_inc} but approx. 440 of the 9.01 events classified as \lstinline{lg_inc} had the true class \lstinline{lg_dec}.
