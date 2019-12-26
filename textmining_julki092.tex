@@ -372,7 +372,7 @@
 	
 	\subsubsection{Baseline}
 	
-	Four commonly used models were included as baseline models. The data was processed in the same way for all these models: the \lstinline{CountVectorizer} from sklearn was used. \lstinline{min_df} was set to 0.001 and \lstinline{max_df} was set to 0.9, i.e. only tokens that were is fewer than 90\% of the documents and in more than 0.1\% of the documents were included. These parameter values were identified during a grid search experiment with CatBoost and then used for the baseline models as well.
+	Four commonly used models were included as baseline models. The data was processed in the same way for all these models: the \lstinline{CountVectorizer} from sklearn was used. \lstinline{min_df} was set to 0.001 and \lstinline{max_df} was set to 0.9, i.e. only tokens that were in fewer than 90\% of the documents and in more than 0.1\% of the documents were included. These parameter values were identified during a grid search experiment with CatBoost and then used for the baseline models as well.
 	
 	In addition to the baseline models, the majority classifier and the random guess classifier were reported. Due to balanced classes, the values of these two classifiers were the same.
 	
@@ -384,7 +384,7 @@
 	\begin{enumerate}
 		\item 	A comparison between the \textbf{\lstinline{CountVectorizer} and the \lstinline{TfidfVectorizer}} was conducted (with 67\% of the training data for training and 33\% of the training data for validation). \lstinline{min_df} was set to a small number, 0.001, so that the vectorized data could fit in memory. CatBoost was used with default parameters. Since accuracy, as well as avg. precision and recall were better by 0.01 with the \lstinline{TfidfVectorizer}, only the \lstinline{TfidfVectorizer} was used in subsequent experiments.
 		\item 	A comparison between text data \textbf{with and without negation encoding} was conducted (with 67\% of the training data for training and 33\% of the training data for validation). The default CatBoost classifier with \lstinline{TfidfVectorizer} was used. Since adding the negation encoding changed the evaluation metrics by only $<0.01$, the data without negation encoding was used in subsequent experiments for simplicity.
-		\item 	A grid search for the \lstinline{TfidfVectorizer} parameters \textbf{\lstinline{min_df} and \lstinline{max_df}} was conducted. The values 0.001, 0.005, 0.01 and 0.85, 0.9, 0.95 were considered	respectively. The best parameters, 0.001 for \lstinline{min_df} and 0.9 for \lstinline{max_df} were used in subsequent experiments. Note that the chosen parameter value for \lstinline{min_df} was the smallest among the tested values. However, it was not decreased further due to memory limitations.
+		\item 	A grid search for the \lstinline{TfidfVectorizer} parameters \textbf{\lstinline{min_df} and \lstinline{max_df}} was conducted. The values 0.001, 0.005, 0.01 and 0.85, 0.9, 0.95 were considered	respectively. The best parameters, 0.001 for \lstinline{min_df} and 0.9 for \lstinline{max_df}, were used in subsequent experiments. Note that the chosen parameter value for \lstinline{min_df} was the smallest among the tested values. However, it was not decreased further due to memory limitations.
 		\item 	A (1 dimensional) grid search for \textbf{n-grams} was conducted. For testing n-grams, the size of the text data needed to reduced due to memory limitations. Only tokens with a feature importance $>0.01$ according to the CatBoost model from the third step were kept. Then, for the \lstinline{TfidfVectorizer} parameter \lstinline{ngram}, the following parameter values were tested: (3, 3), (2, 2), (1, 1), (1, 3), (1, 2). Since (1, 1) was found to be the best value, only unigrams were used in the subsequent experiment. For simplicity, no feature removal was done anymore for the subsequent experiments.
 		\item 	A random search (with 15 iterations) was done for the \textbf{CatBoost hyperparameters} \lstinline{learning_rate} (0.015, 0.02, 0.025, 0.03, 0.035), \lstinline{depth} (5, 6, 7, 8, 9), and \lstinline{iterations} (750, 800, 850, 900, 950). The best parameters were a \lstinline{depth} of 8, a number of \lstinline{iterations} of 900 and a \lstinline{learning_rate} of 0.03.
 	\end{enumerate}
@@ -394,7 +394,7 @@
 
 	\subsection{Best Model Evaluation}
 	
-	In addition to class-wise precision and the confusion matrix, a backtesting with simplified assumptions was conducted for QTR1 2019 to evaluate the final model. The backtesting was done with the following simplifying assumptions. Note that the max. loss per trade reflects a stop-loss, i.e. we would sell when reaching a 5\% loss on a specific trade. The max. percentage change realized in case of profit is only set to 50\% because parts of the price increase might happen before we might enter a trade (in pre- or after-market hours).
+	In addition to class-wise precision and the confusion matrix, a backtesting with simplified assumptions was conducted to evaluate the final model on the test data from QTR1 2019. The backtesting was done with the following simplifying assumptions. Note that the max. loss per trade reflects a stop-loss, i.e. we would get out of a trade when reaching a 5\% loss on a specific trade (e.g. by selling all shares in case of a long position). The max. percentage change realized in case of profit is only set to 50\% because parts of the price increase might happen before we might enter a trade (in pre- or after-market hours).
 	
 	\begin{enumerate}
 		\item 	Amount of money placed on each trade: \$2K
@@ -406,13 +406,20 @@
 		\item 	Max. percentage change realized in case of profit: 50\%
 	\end{enumerate}
 	
-	The backtesting was conducted in two variations. First, a trade was placed whenever the model classified \lstinline{lg_inc}. Second, a trade was placed whenever the model classified \lstinline{lg_inc} with a probability larger than 40\%.
+	The backtesting was conducted in two variations. First, a trade was placed whenever the model classified \lstinline{lg_inc}. Second, a trade was placed whenever the model classified \lstinline{lg_inc} with a probability larger than 40\%. The threshold of 40\% was determined as a reasonable threshold based on the distribution of the predicted probabilities of the classified classes of the test data in figure ~\ref{fig:dist_pred_prob}.
+	
+	\begin{figure}[h!]
+		\includegraphics[width=\linewidth]{img/dist_pred_prob.png}
+		\caption{Distribution of predicted probabilities of classified classes}
+		\label{fig:dist_pred_prob}
+	\end{figure}
+	
 	
 	\section{Results}
 	
 	\subsection{Model Comparison}
 
-	The performance of all classifiers on the training and validation data can be found in tables ~\ref{table:results_train} and ~\ref{table:results_valid} respectively.
+	The performance of all classifiers on the training and validation data can be found in tables ~\ref{table:results_train} and ~\ref{table:results_valid} respectively. The best model on the validation data was the CatBoost classifier with 11\% additional accuracy compared to a majority classifier. The results on all evaluation metrics seem balanced, with values ranging from 0.30 to 0.31. The CatBoost classifier is followed  by logistic regression which performs 0.01-0.02 worse on the evaluation metrics. 
 
 	\begin{table}[h!]
 		\centering
@@ -456,13 +463,11 @@
 		
 	\end{table}%	
 
-	The best model was the CatBoost classifier.
-
 	\subsection{Best Model}
 	
 	\subsubsection{Evaluation Metrics}
 
-	The performance of the final model on the test data from QTR1 2019 is displayed in table ~\ref{table:results_test}. The corresponding confusion matrix with class-wise precision is shown in table ~\ref{table:best_model_cm_abs}. Recall that the final model is the default CatBoost classifier with tf-idf vectorization using 0.001 for \lstinline{min_df} and 0.9 for \lstinline{max_df}.
+	The performance of the final CatBoost classifier on the test data from QTR1 2019 is displayed in table ~\ref{table:results_test}. The corresponding confusion matrix with class-wise precision is shown in table ~\ref{table:best_model_cm_abs}. The performance on the test data is very similar to the performance on the validation data (with differences of only 0.00-0.01). The largest precision is achieved for the class \lstinline{lg_inc}, with a precision of 0.36. This means that when classifying \lstinline{lg_inc}, the model is correct 36\% of the times. The model makes rather many mistakes when classifying \lstinline{sm_inc} and \lstinline{sm_dec}.
 
 	\begin{table}[h!]
 	\centering
@@ -502,7 +507,7 @@
 
 	\end{table}%
 
- 	Figure ~\ref{fig:class_by_lg_dec} shows the number of true classes among all observations that were classified as \lstinline{lg_inc} by 8-K event. E.g. approx. 570 of the 9.01 events classified as \lstinline{lg_inc} had the true class \lstinline{lg_inc} but approx. 440 of the 9.01 events classified as \lstinline{lg_inc} had the true class \lstinline{lg_dec}.
+ 	Since \lstinline{lg_inc} has the highest precision, figure ~\ref{fig:class_by_lg_dec} shows the number of true classes among all observations that were classified as \lstinline{lg_inc} by 8-K event. E.g. approx. 570 of the 9.01 events classified as \lstinline{lg_inc} had the true class \lstinline{lg_inc} but approx. 440 of the 9.01 events classified as \lstinline{lg_inc} had the true class \lstinline{lg_dec}. It seems like there are only slight differences in precision across the different 8-K events. However, for events with little available data (e.g. 2.01, 2.03 and 3.02) the number of correct classifications is as large as the number of false classifications.
 
 	\begin{figure}[h!]
 		\includegraphics[width=\linewidth]{img/class_by_lg_dec.png}
@@ -512,8 +517,26 @@
 
 	\subsubsection{Backtesting}
 
+	The backtesting results are displayed in table ~\ref{table:results_trading} and the cumulative profits across trades are shown in the figures ~\ref{fig:trade_lg_inc_all} and ~\ref{fig:trade_lg_inc_0.4}. The figures also show a random trader in comparison, which randomly places one trade for each trade of the non-random trader. Any 8-K filings from the corresponding date (of the non-random trader's trade) can be traded by the random trader. Visibly, the random traders are not profitable over time whereas the non-random traders are.
+	
+	The table shows that making use of the predicted class probabilities from the CatBoost classifier improves the trading results. If only trades are placed when \lstinline{lg_inc} is classified with a probability of $>0.4$, then the percentage of trades with profit increases from 55\% to 62\%, the total number of trades reduces to 27\% while the total profit only reduces to 85\% (compared to the trader that always places a trade whenever \lstinline{lg_inc} is classified).
+	
 
-
+	\begin{table}[h!]
+		\centering
+		\caption{Backtesting results}
+		\label{table:results_trading}
+		
+		\begin{tabular}{lrrrrrrr}
+			\toprule
+			Type &    No. trades &  \% of trades with profit &     \% of trades with loss &     Total profit \\
+			\midrule
+			Trade all lg\_inc  &  1628 &  55\% &   45\% & \$8797 \\
+			Trade lg\_inc with prob. $>$ 0.40  & 443 & 62\% &  38\% &  \$7450 \\
+			\bottomrule
+		\end{tabular}
+		
+	\end{table}%
 
 	\begin{figure}[h!]
 		\includegraphics[width=\linewidth]{img/trade_lg_inc_all.png}
@@ -528,17 +551,13 @@
 		\label{fig:trade_lg_inc_0.4}
 	\end{figure}
 
-	\begin{figure}[h!]
-		\includegraphics[width=\linewidth]{img/dist_pred_prob.png}
-		\caption{Distribution of predicted probabilities of classified classes}
-		\label{fig:dist_pred_prob}
-	\end{figure}
-
-
+	\clearpage
 	
-	\subsubsection{Interpretation}
+	\subsubsection{Important Features}
 	
-	A word cloud with features weighted by feature importance is shown in figure ~\ref{fig:feat_imp}.
+	A word cloud with features weighted by feature importance is shown in figure ~\ref{fig:feat_imp}. The feature importance is a normalized CatBoost metric that reflects how much the prediction values change when the feature changes \cite{noauthor_feature_nodate}. Larger values represent larger feature importance.
+	
+	Overall, there are words that seem to be relevant for stock price changes, e.g. increase, decrease, disappoint, profit, and also words that seem less relevant, e.g. months like April, August, and abbreviations like inc.
 	
 	\begin{figure}[h!]
 		\includegraphics[width=\linewidth]{img/feat_imp.png}
@@ -549,8 +568,11 @@
 	
 	\section{Discussion}
 	
-	\section{Conclusion}
+
 	
+	\section{Conclusion}
+
+	In conclusion, we can say that making use of 8-K filings for stock price predictions has potential for usage in a practical application. A backtesting with simplified assumptions turned out to be profitable. The most important future steps will be a) to try to improve a model by adding different data sources (e.g. stock price time series and fundamental data about the companies) and b) to see if the assumptions made during backtesting hold in actual trades. The CatBoost classifier was shown to be suitable model since it outperformed all other baseline models in a reasonable amount of training time ($< 10$ min. per model). 
 	
 \clearpage
 \printbibliography
