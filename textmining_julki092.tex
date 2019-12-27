@@ -21,7 +21,7 @@
 	
 	\title{\textsc{732A92 Text Mining} \\ [2.0cm]
 		\HRule{0.5pt} \\
-		\LARGE \textbf{\uppercase{Classifying Stock Price Movements based on 8-K SEC filings with Gradient Boosting Decision Trees (CatBoost)}}
+		\LARGE \textbf{\uppercase{Classifying Stock Price Changes based on 8-K SEC filings with Gradient Boosting Decision Trees (CatBoost)}}
 		\HRule{2pt} \\ [0.5cm]
 		\normalsize \today \vspace*{5\baselineskip}}
 	
@@ -114,14 +114,14 @@
 	
 	This section gives a short overview of previous work about forecasting stock prices with 8-K filings. Since the focus of this project is classification, this literature review also focuses on previous work with classification. There are few public research papers that made use of 8-K filings for stock price forecasts. However, the papers that are publicly available show promising results, with between 4\% and 10\% additional accuracy achieved by adding text features from 8-K filings to the classification models.
 	
-	For instance, Lee et al. could achieve an increase in accuracy by 10\% when including text data from 8-K filings into a baseline model that only used financial metrics \cite{lee_importance_2014}. This study was solving a classification task with three classes: price increase ($> 1\%$), price decrease ($< -1\%$) or no relevant change ($< |1 \%|$). Compared to a random classification with 33\% accuracy and a majority-class classification of 35\% accuracy, the best model of the study could achieve a 55\% accuracy on the test data. The main model used for this study was a random forest classifier, which outperformed other models such as multi layer perceptron and logistic regression. Unigram features of the text data were used along with non-negative matrix factorization for dimensionality reduction.
+	For instance, Lee et al. could achieve an increase in accuracy by 10\% when including text data from 8-K filings into a baseline model that only used financial metrics \cite{lee_importance_2014}. This study was solving a classification task with three classes: price increase ($> 1\%$), price decrease ($< -1\%$) or no relevant change ($< |1 \%|$). Compared to a majority classifier with 35\% accuracy, the best model of the study could achieve a 55\% accuracy on the test data. The main model used for this study was a random forest classifier, which outperformed other models such as multi layer perceptron and logistic regression. Unigram features of the text data were used along with non-negative matrix factorization for dimensionality reduction.
 	
-	Another study by Saleh et al. extended the research by Lee et al. \cite{saleh_neural_nodate}. In addition to the data from the 8-K filings, the researchers used text data from Twitter. Furthermore, they used convolutional neural networks (CNNs) and recurrent neural networks (RNNs) instead of random forests. Compared to a majority-class classification of 42\% without twitter data and 49\% with twitter data, best test accuracies were 51\% and 53\% respectively. Instead of unigram features, word embeddings from GloVe were used.
+	Another study by Saleh et al. extended the research by Lee et al. \cite{saleh_neural_nodate}. In addition to the data from the 8-K filings, the researchers used text data from Twitter. Furthermore, they used convolutional neural networks (CNNs) and recurrent neural networks (RNNs) instead of random forests. Compared to a majority classifier with 42\% accuracy without twitter data and 49\% accuracy with twitter data, best test accuracies were 51\% and 53\% respectively. Instead of unigram features, word embeddings from GloVe were used.
 	
 	Holowczak et al. compared the performance of various common algorithms (random forest, naive bayes, support vector machine, k-nearest neighbor and ridge classifier) on a binay classification task (price increase vs. decrease) \cite{holowczak_testing_2019}. However, only 8-K filings for a particular event, item 4.01, were used. The best results were achieved with a linear support vector classifier with a classification accuracy of 54.4\% on the test data (compared to a 50\% accuracy by a majority classifier). The text data had been transformed with frequency-inverse document frequency (tf-id) vectorization.
 	
 	
-	\subsection{Gradient Boosting Decision Trees (GBDT) in General}
+	\subsection{Gradient Boosting Decision Trees (GBDT)}
 	
 	Gradient boosting with decision trees became popular with the development of XGBoost in 2016 \cite{chen_xgboost:_2016} and lightGBM in 2017 \cite{ke_lightgbm:_2017}. In 2018, another GBDT library called CatBoost was published, which claims to handle categorical features particularly well. Furthermore, CatBoost was shown to outperform XGBoost and lightGBM on various datasets with default parameters. For this reason, CatBoost is used in this project. The implementational details of CatBoost are rather involved and are therefore not fully covered in this report. Instead, what follows is a short introduction to GBDT. Differences betweeen CatBoost and other implementations of GBDT are mainly that CatBoost handles categorical features very well and that it uses unbiased gradient estimates \cite{dorogush_catboost:_2018}. 
 	
@@ -182,7 +182,7 @@
 	
 	\subsubsection{Extraction of 8-K Events}
 	
-	The 8-K item events corresponding to each 8-K filing were extracted for analysis. This was done by searching all filing documents for all item identifiers. E.g. each document was searched for "Item 1.01", "Item 1.02", ..., "Item 9.01". Since these identifiers must occur in the titles of the 8-K filings that contain information about the respective events, they could be extracted by a simple search. 
+	The 8-K event categories corresponding to each 8-K filing were extracted for analysis. This was done by searching all filing documents for all item identifiers. E.g. each document was searched for "Item 1.01", "Item 1.02", ..., "Item 9.01". Since these identifiers must occur in the titles of the 8-K filings that contain information about the respective events, they could be extracted by a simple search. 
 	
 	\subsubsection{Negation Encoding}
 	
@@ -198,7 +198,7 @@
 	
 	The percentage changes are normalized with the S\&P 500, a stock price index based on the 500 largest companies in the U.S. The normalization was done by subtracting the S\&P 500 percentage change from the stock price percentage change. For example, when the percentage change of the stock price corresponding to an 8-K filing was +5\% and when the percentage change of the S\&P 500 in the same period was +3\%, then the normalized percentage change is +2\%.
 	
-	Table ~\ref{table:stats_by_data} shows descriptive statistics for the percentage changes before discretization. The corresponding distribution is visualized in figure ~\ref{fig:dist_target_nondisc}. Note that visually, the distributions for training, test and validation set seem very similar, and hence the distribution was only plotted for the overall data. The distributions for the different data sets differ slightly, however, in their maximum values because the total number of data points with large percentage changes is relatively small. 
+	Table ~\ref{table:stats_by_data} shows descriptive statistics for the percentage changes before discretization. The corresponding distribution is visualized in figure ~\ref{fig:dist_target_nondisc}. Note that visually, the distributions for training, test and validation set seem very similar, and hence the distribution was only plotted for the overall data. However, The distributions of the different data sets differ slightly in their maximum values. 
 
 	
 	\begin{table}[h!]
@@ -234,7 +234,7 @@
 	
 	\begin{table}[h!]
 		\centering
-		\caption{Descriptive statistics for percentage change by discretization level}
+		\caption{Descriptive statistics for percentage change by class}
 		\label{table:stats_by_target}
 	
 		\begin{tabular}{lrrrrrr}
@@ -268,23 +268,23 @@
 		\label{fig:dist_num_tokens}
 	\end{figure}
 
-	The number of occurences of each 8-K event is displayed in figure ~\ref{fig:dist_8k_events}. Note that one 8-K filing can contain information about more than one event. Therefore, the total number of events, 89976, is more than twice as large as the total number of 8-K filings. The five most frequent events are: 9.01 (financial statements and exhibits), 2.02 (results of operations and financial condition), 8.01 (other events), 7.01 (regulation FD disclosure) and 5.02 (Departure of directors or certain officers; election of directors; appointment of certain officers; compensatory arrangements of certain officers).
-	
-	In figure ~\ref{fig:dist_class_by_8k}, the number of occurences of each 8-K event is again displayed, this time however with additional information about the corresponding discretized percentage change. For instance, one can see that there were approx. 7000 8-K filings with information about "Item 7.01" that were followed by a large \textit{decrease} in the stock price (dark orange) and another 7000 8-K filings with information about "Item 7.01" that were followed by a large \textit{increase} in the stock price (dark grey). Importantly, one can see that the same 8-K event, e.g. "Item 7.01", generally corresponds to an equally large number of stock price increases and decreases. In other words, whether a particular 8-K event contributes to a stock price increase or decrease does not seem to depend on the event itself but rather on the actual content of the 8-K filing about this event.
-	
-
 	\begin{figure}[h!]
 		\includegraphics[width=\linewidth]{img/dist_8k_events.png}
 		\caption{Number of occurences of 8-K events}
 		\label{fig:dist_8k_events}
 	\end{figure}
-
-
+	
 	\begin{figure}[h!]
 		\includegraphics[width=\linewidth]{img/dist_class_by_8k.png}
 		\caption{Number of occurences of classes by 8-K event}
 		\label{fig:dist_class_by_8k}
 	\end{figure}
+
+	The number of occurences of each 8-K event is displayed in figure ~\ref{fig:dist_8k_events}. Note that one 8-K filing can contain information about more than one event. Therefore, the total number of events, 89976, is more than twice as large as the total number of 8-K filings. The five most frequent events are: 9.01 (financial statements and exhibits), 2.02 (results of operations and financial condition), 8.01 (other events), 7.01 (regulation FD disclosure) and 5.02 (Departure of directors or certain officers; election of directors; appointment of certain officers; compensatory arrangements of certain officers).
+	
+		
+	In figure ~\ref{fig:dist_class_by_8k}, the number of occurences of each 8-K event is again displayed, this time however with additional information about the corresponding discretized percentage change. For instance, one can see that there were approx. 7000 8-K filings with information about "Item 7.01" that were followed by a large \textit{decrease} in the stock price (dark orange) and another 7000 8-K filings with information about "Item 7.01" that were followed by a large \textit{increase} in the stock price (dark grey). Importantly, one can see that the same 8-K event, e.g. "Item 7.01", generally corresponds to an equally large number of stock price increases and decreases. In other words, whether a particular 8-K event contributes to a stock price increase or decrease does not seem to depend on the event itself but rather on the actual content of the 8-K filing about this event.
+
 
 
 	\section{Method}
@@ -344,8 +344,7 @@
 
 	\subsection{Best Model Evaluation}
 	
-	In addition to class-wise precision and the confusion matrix, a backtesting with simplified assumptions was conducted to evaluate the final model on the test data from QTR1 2019. The backtesting was done with the following simplifying assumptions. Note that the max. loss per trade reflects a stop-loss, i.e. we would get out of a trade when reaching a 5\% loss on a specific trade (e.g. by selling all shares in case of a long position). The max. percentage change realized in case of profit is only set to 50\% because parts of the price increase mig
-	ht happen before we might enter a trade (in pre- or after-market hours).
+	In addition to class-wise precision and the confusion matrix, a backtesting with simplified assumptions was conducted to evaluate the final model on the test data from QTR1 2019. The backtesting was done with the following simplifying assumptions. Note that the max. loss per trade reflects a stop-loss, i.e. we would get out of a trade when reaching a 5\% loss on a specific trade (e.g. by selling all shares in case of a long position). The max. percentage change realized in case of profit is only set to 50\% because parts of the price increase might happen before we might enter a trade (in pre- or after-market hours). E.g. say that stocks worth \$2K  were bought (of a company corresponding to a particular 8-K filing). If the percentage change then turned out to be +10\%, then the incurred profit would be \$100.
 	
 	\begin{enumerate}
 		\item 	Amount of money placed on each trade: \$2K
@@ -368,7 +367,7 @@
 	
 	\subsection{Model Comparison}
 
-	The performance of all classifiers on the training and validation data can be found in table ~\ref{table:results_train_valid}. The best model on the validation data was the CatBoost classifier with 11\% additional accuracy compared to a majority classifier and evaluation metrics ranging from 0.30 to 0.31. The CatBoost classifier is followed  by logistic regression which performs between 0.01 and 0.02 worse on the evaluation metrics. 
+	The performance of all classifiers on the training and validation data can be found in table ~\ref{table:results_train_valid}. The best model on the validation data was the CatBoost classifier with an accuracy of 31\%, representing an increase of 11\% compared to the majority classifier. This classifier is followed by logistic regression with an accuracy of 29\%.
 
 	\begin{table}[h!]
 		\centering
@@ -399,11 +398,11 @@
 		
 	\end{table}%	
 
-	\subsection{Best Model}
+	\subsection{Best Model Evaluation}
 	
 	\subsubsection{Evaluation Metrics}
 
-	The performance of the final CatBoost classifier on the test data from QTR1 2019 is displayed in table ~\ref{table:results_test}. The corresponding confusion matrix with class-wise precision is shown in table ~\ref{table:best_model_cm_abs}. The performance on the test data is very similar to the performance on the validation data (with differences of only 0.00-0.01). The largest precision is achieved for the class \lstinline{lg_inc}, with a value of 0.36. This means that when classifying \lstinline{lg_inc}, the model is correct 36\% of the time. The model makes rather many mistakes when classifying \lstinline{sm_inc} and \lstinline{sm_dec}.
+	The performance of the final CatBoost classifier on the test data from QTR1 2019 is displayed in table ~\ref{table:results_test}. The corresponding confusion matrix with class-wise precision is shown in table ~\ref{table:best_model_cm_abs}. The performance on the test data is very similar to the performance on the validation data (with an accuracy of 30\% instead of 31\%). The largest precision is achieved for the class \lstinline{lg_inc}, with a value of 0.36. This means that when classifying \lstinline{lg_inc}, the model is correct 36\% of the time. The model makes rather many mistakes when classifying \lstinline{sm_inc} and \lstinline{sm_dec}.
 
 	\begin{table}[h!]
 	\centering
@@ -453,7 +452,7 @@
 
 	\subsubsection{Backtesting}
 
-	The backtesting results are displayed in table ~\ref{table:results_trading} and the cumulative profits across trades are shown in the figures ~\ref{fig:trade_lg_inc_all} and ~\ref{fig:trade_lg_inc_0.4}. The figures also show a random trader in comparison, which randomly places one trade for each trade of the non-random trader. Any 8-K filings from the corresponding date (of the non-random trader's trade) can be traded by the random trader. Visibly, the random traders are not profitable over time whereas the non-random traders are.
+	The backtesting results are summarized in table ~\ref{table:results_trading} and the cumulative profits across trades are shown in the figures ~\ref{fig:trade_lg_inc_all} and ~\ref{fig:trade_lg_inc_0.4}. The figures also show a random trader in comparison, which randomly places one trade for each trade of the non-random trader. Any 8-K filings from the corresponding date (of the non-random trader's trade) can be traded by the random trader. Visibly, the random traders are not profitable over time whereas the non-random traders are.
 	
 	The table shows that making use of the predicted class probabilities from the CatBoost classifier improves the trading results. If only trades are placed when \lstinline{lg_inc} is classified with a probability of $>0.4$, then the percentage of trades with profit increases from 55\% to 62\%, the total number of trades reduces to 27\% while the total profit only reduces to 85\% (compared to the trader that always places a trade whenever \lstinline{lg_inc} is classified).
 	
@@ -507,18 +506,21 @@
 	
 	Moreover, one can see that the many features used by the model, i.e. the features with a certain feature importance, seem reasonable. The word cloud in figure ~\ref{fig:feat_imp} shows many words that seem relevant for stock price changes, e.g. increase, decrease, disappoint, profit, and improvement. However, there are also words that seem less relevant, e.g. months like April, abbreviations like inc, and other terms like conference. This indicates that the model did well in identifying relevant tokens as features but that it might be mistaken about other tokens.
 	
+	Even though the classes \lstinline{lg_inc} and \lstinline{lg_dec} have the largest class-wise precisions with 36\% and 34\% respectively, the model has a particular weakness for these classes: among the observations classified as \lstinline{lg_inc}, most turn out to truly have the class   \lstinline{lg_inc} and \lstinline{lg_dec}. The same is true for observations classified as  \lstinline{lg_dec}. This means that the model is good at identifying extreme percentage changes but not necessarily at identifying the direction of the percentage changes. Unfortunately, negation encoding did not lead to any improvement regarding this issue.
+	
+	
 	\subsection{Practical Implications}
 	
-	Overall, the results seem to indicate that 8-K filings can be useful in generating trading signals. As the backtesting shows, simply placing trades when the model classifies \lstinline{lg_inc} may be sufficient to generate profits in the long-term. However, the backtesting was conducted with simplified assumptions, e.g. the stop loss of 5\%. In practice, we may not always be able to sell the stocks with a stop loss of 5\%, e.g. during pre- or after-market hours. Future projects should investigate whether these assumptions hold in practice. In addition, one might compare the 8-K filing strategy with other trading strategies instead of a random trader. 
+	Nevertheless, the results indicate that 8-K filings can be useful in generating trading signals. As the backtesting shows, simply placing trades when the model classifies \lstinline{lg_inc} may be sufficient to generate profits in the long-term. However, the backtesting was conducted with simplified assumptions, e.g. the stop-loss of 5\%. In practice, we may not always be able to sell the stocks with a stop-loss of 5\%, e.g. during pre- or after-market hours. Future projects should investigate whether these assumptions hold in practice. In addition, one might compare the 8-K filing strategy with trading strategies other than a random trader to have a more fair comparison.
 	
 	\subsection{Future Projects}
 		
-	Above all, future projects should investigate possibilities to further improve the accuracy and class-wise precision. Three potential projects could be the following. First, one could add other data sources such as stock price time series and fundamental data about the companies. Second, one could compare CatBoost with more complex models such as neural networks with word embeddings like BERT. Third, one could investigate the 8-K filings that are associated with certain percentage changes with methods such as topic modeling to understand better which 8-K filings may actually lead to certain percentage changes such as a \lstinline{lg_inc}.
+	Above all, future projects should investigate possibilities to further improve the accuracy and class-wise precision. Three potential projects could be the following. First, one could add other data sources such as stock price time series and fundamental data about the companies. Second, one could compare CatBoost with more complex models such as neural networks with word embeddings like BERT. Third, one could investigate the 8-K filings that are associated with certain percentage changes using methods such as topic modeling to understand better which 8-K filings may actually lead to certain percentage changes such as a \lstinline{lg_inc}.
 	
 
 	\section{Conclusion}
 
-	In conclusion, forecasting stock price changes based on 8-K filings has potential for usage in a  trading application. A backtesting with simplified assumptions turned out to be profitable. The CatBoost classifier was shown to be suitable model for this problem. It identified relevant text features from the 8-K filings and outperformed all other baseline models with an accuracy of 30\% on the test data (compared to 20\% with a majority classifier). Its largest class-wise precision was achieved for the class \lstinline{lg_inc}, namely a precision of of 36\%. 
+	The CatBoost classifier was shown to be suitable model for this problem. It identified relevant text features from the 8-K filings and outperformed all other baseline models with an accuracy of 31\% on the validation data (compared to 20\% with a majority classifier). This performance generalized well to the test data with an accuracy of 30\%. The largest class-wise precision was achieved for the class \lstinline{lg_inc}, namely a precision of of 36\%. A backtesting, where a trade was placed for every \lstinline{lg_inc} classification, turned out to be profitable. In conclusion, forecasting stock price changes based on 8-K filings with GBDT has potential for usage in a trading application. 
 	
 \clearpage
 \printbibliography
