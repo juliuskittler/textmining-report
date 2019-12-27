@@ -178,26 +178,6 @@
 	The second aspect relates to categorical features. Two common ways of dealing with categorical features in GBDT are a) one hot encoding, i.e. creating a binary feature for every level of a categorical feature, and b) computing summary statistics. An example of summary statistics described by CatBoost is the following. If the target variable is numeric, we can  replace each level of the categorical feature with the mean of the target variable (of all the observations who have the same level of the categorical feature). The problem here is that this may lead to overfitting, in particular if there are only few observations with the same level of the categorical feature. CatBoost's innovation here is the following. First, the data set is shuffled randomly. Then, the categorical variable value is replaced for each observation as described above. However, when computing the summary statistic to replace the categorical variable value of observation $i$, only the previous observations $1, ..., i-1$ are used.
 
 	
-	\comment{
-		
-	\begin{align}
-		\mathrm{L^{(t)}} = \sum_{i=1}^n l(y_i, \hat{y_i}^{(t-1)} + f_t(\textbf{x}_i)), 
-	\end{align}
-
-		
-	To fit each tree, the gradient of a differentiable loss function is used. Non-numerical features are generally converted to numerical features and therefore the gradient can also be used for categorical variables.
-		
-		
-	- Questions:
-		- Errors made by the ensemble (?) classifier
-		- All variables are converted to numerical features and therefore
-		- Is the structure tree learned once? Or is a new tree structure fitted in every iteration? (Are the gradients also used for the tree structure or only for the tresholds?)
-		- How is the gradient used for numerical variables?
-		- Are non-numerical features are generally converted to numerical features???
-		
-	}
-
-
 	\section{Data}
 	
 	\subsection{Sources}
@@ -419,7 +399,7 @@
 	
 	\subsection{Model Comparison}
 
-	The performance of all classifiers on the training and validation data can be found in tables ~\ref{table:results_train} and ~\ref{table:results_valid} respectively. The best model on the validation data was the CatBoost classifier with 11\% additional accuracy compared to a majority classifier. The results on all evaluation metrics seem balanced, with values ranging from 0.30 to 0.31. The CatBoost classifier is followed  by logistic regression which performs 0.01-0.02 worse on the evaluation metrics. 
+	The performance of all classifiers on the training and validation data can be found in tables ~\ref{table:results_train} and ~\ref{table:results_valid} respectively. The best model on the validation data was the CatBoost classifier with 11\% additional accuracy compared to a majority classifier and evaluation metrics ranging from 0.30 to 0.31. The CatBoost classifier is followed  by logistic regression which performs between 0.01 and 0.02 worse on the evaluation metrics. 
 
 	\begin{table}[h!]
 		\centering
@@ -467,7 +447,7 @@
 	
 	\subsubsection{Evaluation Metrics}
 
-	The performance of the final CatBoost classifier on the test data from QTR1 2019 is displayed in table ~\ref{table:results_test}. The corresponding confusion matrix with class-wise precision is shown in table ~\ref{table:best_model_cm_abs}. The performance on the test data is very similar to the performance on the validation data (with differences of only 0.00-0.01). The largest precision is achieved for the class \lstinline{lg_inc}, with a precision of 0.36. This means that when classifying \lstinline{lg_inc}, the model is correct 36\% of the times. The model makes rather many mistakes when classifying \lstinline{sm_inc} and \lstinline{sm_dec}.
+	The performance of the final CatBoost classifier on the test data from QTR1 2019 is displayed in table ~\ref{table:results_test}. The corresponding confusion matrix with class-wise precision is shown in table ~\ref{table:best_model_cm_abs}. The performance on the test data is very similar to the performance on the validation data (with differences of only 0.00-0.01). The largest precision is achieved for the class \lstinline{lg_inc}, with a value of 0.36. This means that when classifying \lstinline{lg_inc}, the model is correct 36\% of the time. The model makes rather many mistakes when classifying \lstinline{sm_inc} and \lstinline{sm_dec}.
 
 	\begin{table}[h!]
 	\centering
@@ -507,7 +487,7 @@
 
 	\end{table}%
 
- 	Since \lstinline{lg_inc} has the highest precision, figure ~\ref{fig:class_by_lg_dec} shows the number of true classes among all observations that were classified as \lstinline{lg_inc} by 8-K event. E.g. approx. 570 of the 9.01 events classified as \lstinline{lg_inc} had the true class \lstinline{lg_inc} but approx. 440 of the 9.01 events classified as \lstinline{lg_inc} had the true class \lstinline{lg_dec}. It seems like there are only slight differences in precision across the different 8-K events. However, for events with little available data (e.g. 2.01, 2.03 and 3.02) the number of correct classifications is as large as the number of false classifications.
+ 	Since \lstinline{lg_inc} has the highest precision, figure ~\ref{fig:class_by_lg_dec} shows the number of true classes among all observations that were classified as \lstinline{lg_inc} by 8-K event. E.g. approx. 570 of the 9.01 events classified as \lstinline{lg_inc} had the true class \lstinline{lg_inc} but approx. 440 of the 9.01 events classified as \lstinline{lg_inc} had the true class \lstinline{lg_dec}. There are only slight differences in precision across the different 8-K events. However, for events with little available data (e.g. 2.01, 2.03 and 3.02) the number of correct classifications is as large as the number of false classifications.
 
 	\begin{figure}[h!]
 		\includegraphics[width=\linewidth]{img/class_by_lg_dec.png}
@@ -555,9 +535,7 @@
 	
 	\subsubsection{Important Features}
 	
-	A word cloud with features weighted by feature importance is shown in figure ~\ref{fig:feat_imp}. The feature importance is a normalized CatBoost metric that reflects how much the prediction values change when the feature changes \cite{noauthor_feature_nodate}. Larger values represent larger feature importance.
-	
-	Overall, there are words that seem to be relevant for stock price changes, e.g. increase, decrease, disappoint, profit, and also words that seem less relevant, e.g. months like April, August, and abbreviations like inc.
+	A word cloud with features weighted by feature importance is shown in figure ~\ref{fig:feat_imp}. The feature importance is a normalized CatBoost metric that reflects how much the prediction values change when the feature changes \cite{noauthor_feature_nodate}. Larger values represent larger feature importance. For the word cloud, this means that larger words have a larger feature importance.
 	
 	\begin{figure}[h!]
 		\includegraphics[width=\linewidth]{img/feat_imp.png}
@@ -568,11 +546,24 @@
 	
 	\section{Discussion}
 	
-
+	\subsection{Model Performance}
 	
+	Considering that Lee et al. could achieve an increase in accuracy by 10\% when including text data from 8-K filings in their classification model, the achieved results in this project are good \cite{lee_importance_2014}. The best model of this project also improved the test accuracy by 10\% (compared to the majority classifier). 
+	
+	Moreover, one can see that the many features used by the model, i.e. the features with a certain feature importance, seem reasonable. The word cloud in figure ~\ref{fig:feat_imp} shows many words that seem relevant for stock price changes, e.g. increase, decrease, disappoint, profit, improvement. However, there are also other words that seem less relevant, e.g. months like April, abbreviations like inc, and other terms like conference. This seems to imply that the model did well in identifying relevant terms but that it might also potentially be mistaken about some features.
+	
+	\subsection{Practical Implications}
+	
+	Overall, the results seem to indicate that 8-K filings can be useful in generating trading signals. As the backtesting shows, simply placing trades when the model classifies \lstinline{lg_inc} may be sufficient to generate profits in the long-term. However, the backtesting was conducted with simplified assumptions, e.g. the stop loss of 5\%. In practice, we may not always be able to sell the stocks with a stop loss of 5\%, e.g. during pre- or after-market hours. Future projects should investigate whether these assumptions hold in practice. In addition, one might compare the 8-K filing strategy with other trading strategies instead of a random trader. 
+	
+	\subsection{Future Projects}
+		
+	Above all, future projects should investigate possibilities to further improve the accuracy and class-wise precision. Three potential projects could be the following. First, one could add other data sources such as stock price time series and fundamental data about the companies. Second, one could compare CatBoost with more complex models such as neural networks with word embeddings like BERT. Third, one could investigate the 8-K filings that are associated with certain percentage changes with methods such as topic modeling to understand better which 8-K filings may actually lead to certain percentage changes such as a \lstinline{lg_inc}.
+	
+
 	\section{Conclusion}
 
-	In conclusion, we can say that making use of 8-K filings for stock price predictions has potential for usage in a practical application. A backtesting with simplified assumptions turned out to be profitable. The most important future steps will be a) to try to improve a model by adding different data sources (e.g. stock price time series and fundamental data about the companies) and b) to see if the assumptions made during backtesting hold in actual trades. The CatBoost classifier was shown to be suitable model since it outperformed all other baseline models in a reasonable amount of training time ($< 10$ min. per model). 
+	In conclusion, one can say that making use of 8-K filings for stock price predictions has potential for usage in a  trading application. A backtesting with simplified assumptions turned out to be profitable. The CatBoost classifier was shown to be suitable model since it outperformed all other baseline models with an accuracy of 30\% on the test data (compared to 20\% with a majority classifier) and a precision of 36\% for the class \lstinline{lg_inc}.
 	
 \clearpage
 \printbibliography
