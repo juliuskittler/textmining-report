@@ -1,0 +1,13 @@
+This text mining project makes use of filings from the U.S. Securities and Exchange Commission (SEC), 
+in particular 8-K filings, to forecast short-term percentage changes in stock prices. 8-K filings 
+have to be published by public companies in the U.S. for certain defined, business-relevant events. 
+The forecasting problem is approached as a classification problem with five classes: large decrease, 
+small decrease, no change, small increase and large increase (of the stock price before and after 
+filing date of the 8-K filing). Instead of using existing data sets, a new, up-to-date data set is 
+created, with data for the year 2018 and the first quarter of 2019. Furthermore, this project makes 
+a contribution by testing a new approach to this problem: gradient boosting decision trees (GBDT) 
+with tf-idf bag-of-words. Previous research had found random forests to perform very well on this 
+problem. Hence, the methodological choice for this project fell on GBDT as a more advanced ensemble 
+model. Exclusively text data was used for training the models. The best model could achieve an 
+additional 10 percentage points of accuracy on the test data compared to the majority classifier, 
+which is comparable to previous findings from the literature.
